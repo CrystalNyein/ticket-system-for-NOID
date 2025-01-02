@@ -7,7 +7,6 @@ class EventModel extends Model<EventAttributes, EventCreateAttributes> {
   declare id: string;
   declare name: string;
   declare description: string | null;
-  declare code: string;
   declare start_date: Date;
   declare end_date: Date;
   declare readonly created_at: Date;
@@ -23,11 +22,6 @@ EventModel.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    code: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
     },
     description: {
       type: DataTypes.TEXT,

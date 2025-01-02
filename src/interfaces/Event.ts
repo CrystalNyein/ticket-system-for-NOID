@@ -4,7 +4,6 @@ export interface EventAttributes {
   id: string;
   name: string;
   description: string | null;
-  code: string;
   start_date: Date;
   end_date: Date;
   created_at?: Date;
