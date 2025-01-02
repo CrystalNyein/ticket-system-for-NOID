@@ -1,0 +1,44 @@
+{
+  "name": "ticket-system",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/app.ts",
+    "db:migrate": "ts-node ./node_modules/.bin/sequelize-cli db:migrate",
+    "db:migrate:undo": "ts-node ./node_modules/.bin/sequelize-cli db:migrate:undo",
+    "db:seed": "ts-node ./node_modules/.bin/sequelize-cli db:seed:all"
+  },
+  "sequelize-cli": {
+    "config": "src/config/config.js",
+    "models-path": "src/models",
+    "migrations-path": "src/migrations",
+    "seeders-path": "src/seeders"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "bcrypt": "^5.1.1",
+    "canvas": "^3.0.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "os": "^0.1.2",
+    "qrcode": "^1.5.4",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^22.10.3",
+    "@types/qrcode": "^1.5.5",
+    "@types/sequelize": "^4.28.20",
+    "@types/uuid": "^10.0.0",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.2"
+  }
+}

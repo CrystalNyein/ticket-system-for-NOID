@@ -1,0 +1,9 @@
+# dotenv environment variables file
+.env
+
+# ignore dist
+dist/
+build/
+
+# Dependency directories
+node_modules
