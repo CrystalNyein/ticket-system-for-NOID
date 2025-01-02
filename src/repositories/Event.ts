@@ -19,7 +19,7 @@ class EventRepository {
     return await EventModel.destroy({ where: { id } });
   }
   async search(search: string) {
-    return await EventModel.findAll({ where: { [Op.or]: [{ name: { [Op.like]: `%${search}%` } }, { code: { [Op.like]: `%${search}%` } }] } });
+    return await EventModel.findAll({ where: { [Op.or]: [{ name: { [Op.like]: `%${search}%` } }] } });
   }
 }
 export const eventRepository = new EventRepository();

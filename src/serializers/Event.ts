@@ -6,7 +6,6 @@ class EventSerializer {
       id: event.id,
       name: event.name,
       description: event.description,
-      code: event.code,
       start_date: event.start_date,
       end_date: event.end_date,
       created_at: event.created_at,
