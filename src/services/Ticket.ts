@@ -4,7 +4,7 @@ import { ticketRepository } from '../repositories/Ticket';
 import { generateQRCode } from '../utils/qrUtils';
 import { generateRandomTicketCode } from '../utils/ticketUtils';
 
-class TicketServices {
+class TicketService {
   // Method to generate and save bulk tickets
   async generateBulkTickets(eventId: string, ticketTypeCode: string, totalCount: number, ticketTemplatePath: string): Promise<any[]> {
     try {
@@ -55,4 +55,4 @@ class TicketServices {
     return uniqueTicketCode;
   };
 }
-export const ticketServices = new TicketServices();
+export const ticketService = new TicketService();

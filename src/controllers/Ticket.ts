@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ticketRepository } from '../repositories/Ticket';
-import { ticketServices } from '../services/Ticket';
+import { ticketService } from '../services/Ticket';
 import ResponseWrapper from '../utils/ResponseWrapper';
 
 // Create a new ticket
@@ -71,7 +71,7 @@ export const generateBulkTickets = async (req: Request, res: Response): Promise<
   const { eventId, ticketTypeCode, totalCount, ticketTemplatePath } = req.body;
   try {
     // Call the service to generate bulk tickets
-    const tickets = await ticketServices.generateBulkTickets(eventId, ticketTypeCode, totalCount, ticketTemplatePath);
+    const tickets = await ticketService.generateBulkTickets(eventId, ticketTypeCode, totalCount, ticketTemplatePath);
     return ResponseWrapper.success(res, tickets, 'Tickets generated successfully', 201);
   } catch (error) {
     return ResponseWrapper.error(res, error);
