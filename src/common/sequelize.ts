@@ -1,11 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { DBConfig } from '../interfaces/DBConfig';
-import config from '../config/config.js'; // Path to the config file
-import * as dotenv from 'dotenv';
-dotenv.config(); // Load .env variables
-const environment = process.env.NODE_ENV || 'development';
-const dbConfig = config[environment as keyof typeof config];
-export default new Sequelize(dbConfig as DBConfig);
+import env from '../config/env';
+
+const { database } = env;
+
+export default new Sequelize(database);
 
 // export default new Sequelize(database.database, database.username, database.password, {
 //   dialect: database.dialect as Dialect,

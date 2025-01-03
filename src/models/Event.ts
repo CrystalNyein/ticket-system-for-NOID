@@ -11,6 +11,8 @@ class EventModel extends Model<EventAttributes, EventCreateAttributes> {
   declare end_date: Date;
   declare readonly created_at: Date;
   declare readonly updated_at: Date;
+  static filterableColumns = ['start_date', 'end_date'];
+  static searchableColumns = ['name', 'description'];
 }
 EventModel.init(
   {

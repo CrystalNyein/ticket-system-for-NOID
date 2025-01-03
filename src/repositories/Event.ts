@@ -1,13 +1,13 @@
 import { EventCreateAttributes } from '../interfaces/Event';
 import { EventModel } from '../models';
-import { Op } from 'sequelize';
 
 class EventRepository {
-  async create(eventData: Partial<EventModel>) {
-    return await EventModel.create(eventData as EventCreateAttributes);
+  async create(eventData: EventCreateAttributes) {
+    return await EventModel.create(eventData);
   }
-  async findAll() {
-    return await EventModel.findAll();
+  // Find all events with optional filters, pagination, and sorting
+  async findAll(filters: any) {
+    return await EventModel.findAll(filters);
   }
   async findById(id: string) {
     return await EventModel.findByPk(id);
@@ -17,9 +17,6 @@ class EventRepository {
   }
   async delete(id: string) {
     return await EventModel.destroy({ where: { id } });
-  }
-  async search(search: string) {
-    return await EventModel.findAll({ where: { [Op.or]: [{ name: { [Op.like]: `%${search}%` } }] } });
   }
 }
 export const eventRepository = new EventRepository();

@@ -14,6 +14,9 @@ class TicketModel extends Model<TicketAttributes, TicketCreateAttributes> {
   declare buyer_id: string;
   declare readonly created_at: Date;
   declare readonly updated_at: Date;
+
+  static filterableColumns = ['status'];
+  static searchableColumns = ['ticket_code'];
 }
 TicketModel.init(
   {

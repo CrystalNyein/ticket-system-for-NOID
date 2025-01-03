@@ -10,6 +10,8 @@ class TicketTypeModel extends Model<TicketTypeAttributes, TicketTypeCreateAttrib
   declare description: string | null;
   declare created_at?: Date;
   declare updated_at?: Date;
+  static filterableColumns = [];
+  static searchableColumns = ['name', 'description', 'type_code'];
 }
 TicketTypeModel.init(
   {

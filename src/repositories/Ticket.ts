@@ -2,8 +2,8 @@ import { TicketCreateAttributes } from '../interfaces/Ticket';
 import { TicketModel } from '../models';
 
 class TicketRepository {
-  async create(ticketData: Partial<TicketModel>) {
-    return await TicketModel.create(ticketData as TicketCreateAttributes);
+  async create(ticketData: TicketCreateAttributes) {
+    return await TicketModel.create(ticketData);
   }
   async createBulkTickets(ticketData: TicketCreateAttributes[]): Promise<any[]> {
     try {
@@ -13,8 +13,9 @@ class TicketRepository {
       throw new Error(`Error creating tickets in bulk: ${(error as Error).message}`);
     }
   }
-  async findAll() {
-    return await TicketModel.findAll();
+  // Find all tickets with optional filters, pagination, and sorting
+  async findAll(filters: any) {
+    return await TicketModel.findAll(filters);
   }
   async findById(id: string) {
     return await TicketModel.findByPk(id);

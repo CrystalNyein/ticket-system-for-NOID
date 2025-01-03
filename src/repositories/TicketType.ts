@@ -3,11 +3,12 @@ import { TicketTypeModel } from '../models';
 import { Op } from 'sequelize';
 
 class TicketTypeRepository {
-  async create(ticketTypeData: Partial<TicketTypeModel>) {
-    return await TicketTypeModel.create(ticketTypeData as TicketTypeCreateAttributes);
+  async create(ticketTypeData: TicketTypeCreateAttributes) {
+    return await TicketTypeModel.create(ticketTypeData);
   }
-  async findAll() {
-    return await TicketTypeModel.findAll();
+  // Find all ticketTypes with optional filters, pagination, and sorting
+  async findAll(filters: any) {
+    return await TicketTypeModel.findAll(filters);
   }
   async findById(id: string) {
     return await TicketTypeModel.findByPk(id);

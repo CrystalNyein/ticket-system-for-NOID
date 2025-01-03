@@ -6,6 +6,7 @@ export interface DBConfig {
   database: string;
   host: string;
   dialect: Dialect;
+  logging: boolean;
 }
 
 // Define a type for the environment-specific configurations

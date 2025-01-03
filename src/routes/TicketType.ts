@@ -1,13 +1,16 @@
-import { createTicketType, deleteTicketType, getAllTicketTypes, getTicketTypeById, searchTicketTypes, updateTicketType } from '../controllers/TicketType';
+import { createValidator } from 'express-joi-validation';
+import { createTicketType, deleteTicketType, getAllTicketTypes, getTicketTypeById, updateTicketType } from '../controllers/TicketType';
 import { Router } from 'express';
+import validators from '../validators/TicketType';
 
 const router = Router();
 
-router.post('/', createTicketType);
+const validator = createValidator();
+
+router.post('/', validator.body(validators.createOrUpdateTicketType), createTicketType);
 router.get('/', getAllTicketTypes);
 router.get('/:id', getTicketTypeById);
-router.put('/:id', updateTicketType);
+router.put('/:id', validator.body(validators.createOrUpdateTicketType), updateTicketType);
 router.delete('/:id', deleteTicketType);
-router.get('/search', searchTicketTypes);
 
 export default router;
