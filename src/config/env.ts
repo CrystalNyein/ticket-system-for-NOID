@@ -31,5 +31,5 @@ export default {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN,
 
-  salt: process.env.SALT || '10',
+  salt: parseInt(process.env.SALT!) || 10,
 };

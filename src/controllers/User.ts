@@ -10,7 +10,8 @@ import UnauthorizedError from '../common/errors/types/UnauthorizedError';
 export const getMe = async (req: Request, res: Response): Promise<any> => {
   try {
     const currentUser = req.user;
-    return ResponseWrapper.success(res, currentUser, messages.model.retrieved('User'));
+    const user = await userService.getMe(currentUser!.id);
+    return ResponseWrapper.success(res, user, messages.model.retrieved('User'));
   } catch (error) {
     return ResponseWrapper.error(res, error);
   }
@@ -44,7 +45,7 @@ export const getUserById = async (req: Request, res: Response): Promise<any> => 
     const { id } = req.params;
     const currentUser = req.user;
     const user = await userService.getUserById(id, currentUser!);
-    return ResponseWrapper.success(res, user, messages.model.created('User'));
+    return ResponseWrapper.success(res, user, messages.model.retrieved('User'));
   } catch (error) {
     return ResponseWrapper.error(res, error);
   }

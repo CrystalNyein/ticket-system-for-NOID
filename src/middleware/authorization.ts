@@ -7,8 +7,12 @@ import { TUserRole } from '../common/types';
 export const authorize = (roles: TUserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    if (!user || !roles.includes(user.role!)) {
+    if (!user) {
+      return next(new UnauthorizedError(messages.auth.noTokenProvided)); // User not authenticated
+    }
+    if (!user.role || !roles.includes(user.role!)) {
       return next(new UnauthorizedError(messages.auth.noPermission));
     }
+    next();
   };
 };
