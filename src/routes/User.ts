@@ -7,10 +7,10 @@ const router = Router();
 
 const validator = createValidator();
 
-router.post('/', validator.body(validators.createOrUpdateUser), createUser);
+router.post('/', validator.body(validators.createUser), createUser);
 router.get('/', getAllUsers);
 router.get('/:id', getUserById);
-router.put('/:id', validator.body(validators.createOrUpdateUser), updateUser);
+router.put('/:id', validator.body(validators.updateUser), updateUser);
 router.delete('/:id', deleteUser);
 router.get('/me', getMe);
 

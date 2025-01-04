@@ -12,7 +12,7 @@ const database: DBConfig = {
   database: process.env.NODE_ENV === Environment.Development ? process.env.DB_NAME_DEV || 'qr_ticket_system_dev' : process.env.DB_NAME_PROD || 'qr_ticket_system_prod',
   host: process.env.DB_HOST || 'localhost',
   dialect: 'mysql',
-  logging: process.env.NODE_ENV === Environment.Development,
+  logging: false,
 };
 
 export default {

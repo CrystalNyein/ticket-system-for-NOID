@@ -1,4 +1,4 @@
-import { HttpStatus } from 'http-status-ts';
+import { StatusCodes } from 'http-status-codes';
 import HttpError from './HttpError';
 import messages from '../../messages';
 
@@ -8,6 +8,6 @@ export default class ConflictError extends HttpError {
 
     Object.setPrototypeOf(this, ConflictError.prototype);
     this.name = this.constructor.name;
-    this.statusCode = HttpStatus.CONFLICT;
+    this.statusCode = StatusCodes.CONFLICT;
   }
 }

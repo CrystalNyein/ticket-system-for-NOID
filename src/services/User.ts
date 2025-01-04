@@ -31,7 +31,7 @@ class UserService {
   }
 
   // Create a new user (admin only)
-  async createUser(userData: UserCreateAttributes, currentUser: Partial<UserModel>) {
+  async createUser(userData: UserCreateAttributes, currentUser: Express.User) {
     // Only admin can create a user
     if (currentUser.role !== 'admin') {
       throw new UnauthorizedError(messages.auth.createUser);
@@ -45,7 +45,7 @@ class UserService {
   }
 
   // Get all users (admin only)
-  async getAllUsers(query: any, currentUser: Partial<UserModel>) {
+  async getAllUsers(query: any, currentUser: Express.User) {
     // Only admin can create a user
     if (currentUser.role !== 'admin') {
       throw new UnauthorizedError(messages.auth.createUser);
@@ -62,7 +62,7 @@ class UserService {
   }
 
   // Get user by ID (admin or the user themselves can access)
-  async getUserById(id: string, currentUser: Partial<UserModel>) {
+  async getUserById(id: string, currentUser: Express.User) {
     if (currentUser.role !== 'admin' && currentUser.id !== id) {
       throw new UnauthorizedError(messages.auth.getUser);
     }
@@ -71,12 +71,12 @@ class UserService {
   }
 
   // Update an existing user by ID (admin only or the user themselves)
-  async updateUser(id: string, updatedData: Partial<UserModel>, currentUser: Partial<UserModel>) {
+  async updateUser(id: string, updatedData: Partial<UserModel>, currentUser: Express.User) {
     if (currentUser.role !== 'admin' && currentUser.id !== id) {
       throw new UnauthorizedError(messages.auth.getUser);
     }
     const user = await this.getUserByIdOrFail(id);
-    // Check for conflicts email before creating the user
+    // Check for conflicts email before updating the user
     await this.checkUserConflicts(updatedData, true);
 
     const [updatedRows] = await userRepository.update(id, updatedData);
@@ -89,7 +89,7 @@ class UserService {
   }
 
   // Delete an user by ID (admin only)
-  async deleteUser(id: string, currentUser: Partial<UserModel>) {
+  async deleteUser(id: string, currentUser: Express.User) {
     if (currentUser.role !== 'admin') {
       throw new UnauthorizedError(messages.auth.deleteUser);
     }

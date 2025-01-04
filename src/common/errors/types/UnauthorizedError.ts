@@ -1,4 +1,4 @@
-import { HttpStatus } from 'http-status-ts';
+import { StatusCodes } from 'http-status-codes';
 import messages from '../../messages';
 import HttpError from './HttpError';
 
@@ -8,6 +8,6 @@ export default class UnauthorizedError extends HttpError {
 
     Object.setPrototypeOf(this, UnauthorizedError.prototype);
     this.name = this.constructor.name;
-    this.statusCode = HttpStatus.UNAUTHORIZED;
+    this.statusCode = StatusCodes.UNAUTHORIZED;
   }
 }

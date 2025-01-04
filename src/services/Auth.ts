@@ -23,7 +23,7 @@ class AuthService {
     }
 
     // If password matches, proceed with login logic
-    const token = jwt.sign({ id: user.id }, env.jwtSecret as string, {
+    const token = jwt.sign({ id: user.id, role: user.role }, env.jwtSecret as string, {
       expiresIn: env.jwtExpiresIn,
     });
     return { user, token };

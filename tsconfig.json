@@ -9,7 +9,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "typeRoots": ["src/typings", "./node_modules/@types"]
   },
   "include": ["src/**/*.ts", "src/config/config.js"],
   "exclude": ["node_modules"]

@@ -7,10 +7,10 @@ const router = Router();
 
 const validator = createValidator();
 
-router.post('/', validator.body(validators.createOrUpdateEvent), createEvent);
+router.post('/', validator.body(validators.createEvent), createEvent);
 router.get('/', getAllEvents);
 router.get('/:id', getEventById);
-router.put('/:id', validator.body(validators.createOrUpdateEvent), updateEvent);
+router.put('/:id', validator.body(validators.updateEvent), updateEvent);
 router.delete('/:id', deleteEvent);
 
 export default router;

@@ -7,10 +7,10 @@ const router = Router();
 
 const validator = createValidator();
 
-router.post('/', validator.body(validators.createOrUpdateTicketType), createTicketType);
+router.post('/', validator.body(validators.createTicketType), createTicketType);
 router.get('/', getAllTicketTypes);
 router.get('/:id', getTicketTypeById);
-router.put('/:id', validator.body(validators.createOrUpdateTicketType), updateTicketType);
+router.put('/:id', validator.body(validators.updateTicketType), updateTicketType);
 router.delete('/:id', deleteTicketType);
 
 export default router;
