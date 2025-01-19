@@ -7,16 +7,16 @@ import EventModel from './Event';
 
 class TicketModel extends Model<TicketAttributes, TicketCreateAttributes> {
   declare id: string;
-  declare ticket_code: string;
-  declare event_id: string;
-  declare ticket_type_code: string;
+  declare ticketCode: string;
+  declare eventId: string;
+  declare ticketTypeCode: string;
   declare status: 'available' | 'sold' | 'revoked' | 'expired';
-  declare buyer_id: string;
-  declare readonly created_at: Date;
-  declare readonly updated_at: Date;
+  declare buyerId: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   static filterableColumns = ['status'];
-  static searchableColumns = ['ticket_code'];
+  static searchableColumns = ['ticketCode'];
 }
 TicketModel.init(
   {
@@ -25,13 +25,15 @@ TicketModel.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    ticket_code: {
+    ticketCode: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ticket_code',
     },
-    event_id: {
+    eventId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'event_id',
       references: {
         model: 'events',
         key: 'id',
@@ -39,12 +41,13 @@ TicketModel.init(
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     },
-    ticket_type_code: {
+    ticketTypeCode: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ticket_type_code',
       references: {
         model: 'ticket_types',
-        key: 'type_code',
+        key: 'typeCode',
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
@@ -54,9 +57,10 @@ TicketModel.init(
       allowNull: false,
       defaultValue: 'available',
     },
-    buyer_id: {
+    buyerId: {
       type: DataTypes.UUID,
       allowNull: true,
+      field: 'buyer_id',
       references: {
         model: 'buyers',
         key: 'id',
@@ -64,17 +68,17 @@ TicketModel.init(
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
     },
-    qr_code_path: {
+    qrCodePath: {
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: null,
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
@@ -88,10 +92,11 @@ TicketModel.init(
     indexes: [
       {
         unique: true,
-        fields: ['ticket_code', 'ticket_type_code', 'event_id'],
+        fields: ['ticketCode', 'ticketTypeCode', 'eventId'],
         name: 'unique_ticket_code_per_event_and_type',
       },
     ],
+    underscored: true,
   },
 );
 // // Ticket belongs to Event

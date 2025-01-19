@@ -7,11 +7,11 @@ class EventModel extends Model<EventAttributes, EventCreateAttributes> {
   declare id: string;
   declare name: string;
   declare description: string | null;
-  declare start_date: Date;
-  declare end_date: Date;
-  declare readonly created_at: Date;
-  declare readonly updated_at: Date;
-  static filterableColumns = ['start_date', 'end_date'];
+  declare startDate: Date;
+  declare endDate: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+  static filterableColumns = ['startDate', 'endDate'];
   static searchableColumns = ['name', 'description'];
 }
 EventModel.init(
@@ -29,20 +29,22 @@ EventModel.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    start_date: {
+    startDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
+      field: 'start_date',
     },
-    end_date: {
+    endDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
+      field: 'end_date',
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,

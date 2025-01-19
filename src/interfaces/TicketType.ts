@@ -2,11 +2,11 @@ import { Optional } from 'sequelize';
 
 export interface TicketTypeAttributes {
   id: string;
-  type_code: string;
+  typeCode: string;
   name: string;
   description: string | null;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface TicketTypeCreateAttributes extends Optional<TicketTypeAttributes, 'id' | 'created_at' | 'updated_at'> {}
+export interface TicketTypeCreateAttributes extends Optional<TicketTypeAttributes, 'id' | 'createdAt' | 'updatedAt'> {}

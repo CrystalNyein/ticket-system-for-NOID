@@ -34,11 +34,30 @@ export default {
     notFound: (modelName: string) => `${modelName} not found`,
     conflict: (modelName: string, columnName: string) => `${modelName} with this ${columnName} already exists`,
   },
+  error: {
+    noFileUpload: 'No file uploaded',
+    missingMetadata: 'Missing required metadata: eventId and ticketTypeCode',
+  },
   ticket: {
     error: {
       generateTicket: (message: string) => `Error generating ticket: ${message}`,
       generateBulkTickets: (message: string) => `Error generating bluk tickets: ${message}`,
       invalidFieldsEdit: (fields: string) => `Invalid fields: ${fields}`,
+      scan: (error: string) => `Error scanning ticket: ${error}`,
+      invalidQR: 'Invalid QR code data.',
+      eventNotActive: 'The event is not active for today',
+      alreadyScanned: 'This ticket has already been used for today',
+      invalid: 'This ticket is invalid',
     },
+    warning: {
+      partialSuccess: 'Some tickets failed to generate',
+    },
+    success: {
+      scanned: 'Ticket scanned successfully.',
+    },
+  },
+  template: {
+    found: 'Ticket Template exists on the server',
+    notFound: 'Ticket Template does not exist on the server',
   },
 };

@@ -7,7 +7,7 @@ export interface UserAttributes {
   email: string;
   password: string;
   role: TUserRole;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
-export interface UserCreateAttributes extends Optional<UserAttributes, 'id' | 'created_at' | 'updated_at' | 'password'> {}
+export interface UserCreateAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'password'> {}

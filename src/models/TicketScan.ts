@@ -1,14 +1,16 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { TicketScanAttributes } from '../interfaces/TicketScan';
+import { TicketScanAttributes, TicketScanCreateAttributes } from '../interfaces/TicketScan';
 import sequelize from '../common/sequelize';
 import TicketModel from './Ticket';
 
-class TicketScanModel extends Model<TicketScanAttributes> implements TicketScanAttributes {
+class TicketScanModel extends Model<TicketScanAttributes | TicketScanCreateAttributes> {
   declare id: string;
-  declare ticket_id: string;
-  declare scan_date: Date;
-  declare created_at?: Date;
-  declare updated_at?: Date;
+  declare ticketId: string;
+  declare scanDate: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+  static filterableColumns = ['ticketId', 'scanDate'];
+  static searchableColumns = [];
 }
 TicketScanModel.init(
   {
@@ -17,9 +19,10 @@ TicketScanModel.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    ticket_id: {
+    ticketId: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: 'ticket_id',
       references: {
         model: 'tickets', // Ensure this matches the Ticket table name
         key: 'id', // Referencing the 'id' field in the TicketModel
@@ -27,13 +30,13 @@ TicketScanModel.init(
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     },
-    scan_date: { type: DataTypes.DATEONLY, allowNull: false },
-    created_at: {
+    scanDate: { type: DataTypes.DATEONLY, allowNull: false, field: 'scan_date' },
+    createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
@@ -44,7 +47,8 @@ TicketScanModel.init(
     modelName: 'TicketScan',
     tableName: 'ticket_scans',
     timestamps: true,
-    indexes: [{ unique: true, fields: ['ticket_id', 'scan_date'], name: 'unique_ticket_scan_per_day' }],
+    indexes: [{ unique: true, fields: ['ticketId', 'scanDate'], name: 'unique_ticket_scan_per_day' }],
+    underscored: true,
   },
 );
 // TicketScanModel.belongsTo(TicketModel, { foreignKey: 'ticket_id', as: 'ticket' });

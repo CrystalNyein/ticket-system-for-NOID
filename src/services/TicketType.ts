@@ -19,7 +19,7 @@ class TicketTypeService {
 
     // Check if a ticketType with the same type code already exists
     const existingTicketTypeByCode = await ticketTypeRepository.findAll({
-      where: { type_code: ticketTypeData.type_code },
+      where: { type_code: ticketTypeData.typeCode },
     });
     if (existingTicketTypeByCode.length > 0 && (!isUpdate || existingTicketTypeByCode[0].id !== ticketTypeData.id)) {
       throw new ConflictError(messages.model.conflict('Ticket Type', 'code'));
@@ -68,7 +68,7 @@ class TicketTypeService {
 
     const [updatedRows] = await ticketTypeRepository.update(id, updatedData);
     if (updatedRows === 0) {
-      throw new NotFoundError(messages.model.notFound('TicketType'));
+      throw new NotFoundError(messages.model.notFound('Ticket Type'));
     }
     // Fetch the updated ticketType to return the full entity
     const updatedTicketType = await this.getTicketTypeById(id);
@@ -79,7 +79,7 @@ class TicketTypeService {
   async deleteTicketType(id: string) {
     const ticketType = await ticketTypeRepository.findById(id);
     if (!ticketType) {
-      throw new NotFoundError(messages.model.notFound('TicketType'));
+      throw new NotFoundError(messages.model.notFound('Ticket Type'));
     }
     await ticketTypeRepository.delete(id);
     return { id };

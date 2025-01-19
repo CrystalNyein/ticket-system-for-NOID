@@ -20,7 +20,7 @@ class TicketTypeRepository {
     return await TicketTypeModel.destroy({ where: { id } });
   }
   async search(search: string) {
-    return await TicketTypeModel.findAll({ where: { [Op.or]: [{ name: { [Op.like]: `%${search}%` } }, { type_code: { [Op.like]: `%${search}%` } }] } });
+    return await TicketTypeModel.findAll({ where: { [Op.or]: [{ name: { [Op.like]: `%${search}%` } }, { typeCode: { [Op.like]: `%${search}%` } }] } });
   }
 }
 export const ticketTypeRepository = new TicketTypeRepository();

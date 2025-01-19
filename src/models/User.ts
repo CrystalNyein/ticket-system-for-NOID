@@ -52,7 +52,6 @@ UserModel.init(
       allowNull: false,
       validate: {
         len: [8, 100], // Minimum length of 8 characters
-        isAlphanumeric: true, // This will ensure only alphanumeric characters are used
       },
     },
     role: {
@@ -60,12 +59,12 @@ UserModel.init(
       allowNull: false,
       defaultValue: 'staff',
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,

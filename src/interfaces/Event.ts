@@ -4,9 +4,9 @@ export interface EventAttributes {
   id: string;
   name: string;
   description: string | null;
-  start_date: Date;
-  end_date: Date;
-  created_at?: Date;
-  updated_at?: Date;
+  startDate: Date;
+  endDate: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
-export interface EventCreateAttributes extends Optional<EventAttributes, 'id' | 'created_at' | 'updated_at'> {}
+export interface EventCreateAttributes extends Optional<EventAttributes, 'id' | 'createdAt' | 'updatedAt'> {}

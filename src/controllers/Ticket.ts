@@ -62,10 +62,33 @@ export const deleteTicket = async (req: Request, res: Response): Promise<any> =>
 // Generate bulk tickets
 export const generateBulkTickets = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { eventId, ticketTypeCode, totalCount, ticketTemplatePath } = req.body;
+    const { eventId, ticketTypeCode, totalCount, ticketTemplate } = req.body;
     // Call the service to generate bulk tickets
-    const tickets = await ticketService.generateBulkTickets(eventId, ticketTypeCode, totalCount, ticketTemplatePath);
-    return ResponseWrapper.success(res, tickets, messages.model.created('Tickets'), 201);
+    const { createdTickets, failedTickets } = await ticketService.generateBulkTickets(eventId, ticketTypeCode, totalCount, ticketTemplate);
+
+    return ResponseWrapper.success(
+      res,
+      { createdTickets, failedTickets },
+      failedTickets.length > 0 ? messages.ticket.warning.partialSuccess : messages.model.created('Tickets'),
+      failedTickets.length > 0 ? 206 : 201,
+    );
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};
+
+export const uploadAndProcessExcel = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const eventId = req.body.eventId;
+    const { file } = req; // Path of the uploaded file
+    if (!file) {
+      return ResponseWrapper.error(res, messages.error.noFileUpload, 400);
+    }
+    if (!eventId) {
+      return ResponseWrapper.error(res, messages.error.missingMetadata, 400);
+    }
+    const updatedTickets = await ticketService.processExcelFile(file.path, eventId);
+    return ResponseWrapper.success(res, updatedTickets, messages.model.updated('Tickets'));
   } catch (error) {
     return ResponseWrapper.error(res, error);
   }

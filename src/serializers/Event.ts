@@ -6,10 +6,10 @@ class EventSerializer {
       id: event.id,
       name: event.name,
       description: event.description,
-      start_date: event.start_date,
-      end_date: event.end_date,
-      created_at: event.created_at,
-      updated_at: event.updated_at,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt,
     };
   }
 

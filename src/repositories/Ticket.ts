@@ -28,26 +28,28 @@ class TicketRepository {
   }
   async isTicketCodeUnique(eventId: string, ticketTypeCode: string, ticketCode: string) {
     const existingTicket = await TicketModel.findOne({
-      where: {
-        event_id: eventId,
-        ticket_type_code: ticketTypeCode,
-        ticket_code: ticketCode,
-      },
+      where: { eventId, ticketTypeCode, ticketCode },
     });
     return !existingTicket; // Return true if no ticket with the same combination exists
   }
   async getTicketCountByEventAndType(eventId: string, ticketTypeCode: string): Promise<number> {
     try {
       const count = await TicketModel.count({
-        where: {
-          event_id: eventId,
-          ticket_type_code: ticketTypeCode,
-        },
+        where: { eventId, ticketTypeCode },
       });
       return count;
     } catch (error) {
       throw new Error(`Error counting tickets: ${(error as Error).message}`);
     }
+  }
+  async findByCode(eventId: string, ticketTypeCode: string, ticketCode: string) {
+    return await TicketModel.findOne({
+      where: {
+        eventId,
+        ticketTypeCode,
+        ticketCode,
+      },
+    });
   }
 }
 export const ticketRepository = new TicketRepository();

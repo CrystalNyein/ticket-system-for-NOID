@@ -33,9 +33,9 @@ class EventService {
 
     // Fetch events with generated filters
     const events = await eventRepository.findAll(filters);
-    if (!events || events.length === 0) {
-      throw new NotFoundError(messages.model.notFound('Events'));
-    }
+    // if (!events || events.length === 0) {
+    //   throw new NotFoundError(messages.model.notFound('Events'));
+    // }
     return events;
   }
 
@@ -54,7 +54,7 @@ class EventService {
     if (!event) {
       throw new NotFoundError(messages.model.notFound('Event'));
     }
-    // Check for conflicts name before creating the event
+    // Check for conflicts name before updating the event
     await this.checkEventConflicts(updatedData, true);
 
     const [updatedRows] = await eventRepository.update(id, updatedData);

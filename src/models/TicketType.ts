@@ -5,13 +5,13 @@ import TicketModel from './Ticket';
 
 class TicketTypeModel extends Model<TicketTypeAttributes, TicketTypeCreateAttributes> {
   declare id: string;
-  declare type_code: string;
+  declare typeCode: string;
   declare name: string;
   declare description: string | null;
-  declare created_at?: Date;
-  declare updated_at?: Date;
+  declare createdAt?: Date;
+  declare updatedAt?: Date;
   static filterableColumns = [];
-  static searchableColumns = ['name', 'description', 'type_code'];
+  static searchableColumns = ['name', 'description', 'typeCode'];
 }
 TicketTypeModel.init(
   {
@@ -20,10 +20,11 @@ TicketTypeModel.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    type_code: {
+    typeCode: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      field: 'type_code',
     },
     name: {
       type: DataTypes.STRING,
@@ -33,12 +34,12 @@ TicketTypeModel.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,

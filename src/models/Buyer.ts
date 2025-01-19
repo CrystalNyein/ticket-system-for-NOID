@@ -1,15 +1,14 @@
 import { Model, DataTypes } from 'sequelize';
-import { BuyerAttributes } from '../interfaces/Buyer';
+import { BuyerAttributes, BuyerCreateAttributes } from '../interfaces/Buyer';
 import sequelize from '../common/sequelize';
-import TicketModel from './Ticket';
 
-class BuyerModel extends Model<BuyerAttributes> {
+class BuyerModel extends Model<BuyerAttributes | BuyerCreateAttributes> {
   declare id: string;
   declare name: string;
   declare email: string | null;
   declare phone: string;
-  declare readonly created_at: Date;
-  declare readonly updated_at: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 BuyerModel.init(
   {
@@ -36,12 +35,12 @@ BuyerModel.init(
         is: /^[0-9+\- ]+$/i, // Ensures the phone number contains only numbers, +, -, or spaces
       },
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,

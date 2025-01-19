@@ -3,24 +3,28 @@ import authRoutes from './routes/Auth';
 import eventRoutes from './routes/Event';
 import ticketRoutes from './routes/Ticket';
 import ticketTypeRoutes from './routes/TicketType';
+import ticketTemplateRoutes from './routes/TicketTemplate';
 import userRoutes from './routes/User';
 import authenticate from './middleware/authentication';
 import env from './config/env';
 import { authorize } from './middleware/authorization';
 import morgan from 'morgan';
+import cors from 'cors';
 
 const app = express();
 const PORT = env.appPort;
 app.use(express.json()); // To parse JSON bodies
 app.use(morgan('dev'));
+app.use(cors());
 // Unauthenticated routes (if needed, e.g., login/register)
 app.use('/api/auth', authRoutes);
 
 app.use(authenticate);
-app.use('/api/events', authorize(['admin', 'event_manager']), eventRoutes);
+app.use('/api/events', eventRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/ticketTypes', ticketTypeRoutes);
-app.use('/api/users', authorize(['admin']), userRoutes);
+app.use('/api/ticketTemplates', ticketTemplateRoutes);
+app.use('/api/users', userRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

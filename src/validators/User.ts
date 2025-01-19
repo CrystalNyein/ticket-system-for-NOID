@@ -9,6 +9,7 @@ export default {
     role: Joi.valid('admin', 'event_manager', 'staff').required(),
   }),
   updateUser: Joi.object({
+    id: Joi.string(),
     name: Joi.string(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8),

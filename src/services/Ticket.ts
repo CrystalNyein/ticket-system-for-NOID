@@ -7,6 +7,11 @@ import { eventRepository } from '../repositories/Event';
 import { ticketRepository } from '../repositories/Ticket';
 import { generateQRCode } from '../utils/qrUtils';
 import { generateRandomTicketCode } from '../utils/ticketUtils';
+import { buyerSerivce } from './Buyer';
+import { ticketTemplateService } from './TicketTemplate';
+import xlsx from 'xlsx';
+import fs from 'fs';
+import { TTicketSaleRows } from '../common/types';
 
 class TicketService {
   // Method to generate a single ticket (prepare ticket data)
@@ -23,17 +28,17 @@ class TicketService {
 
       // Create the ticket data for this ticket
       const newTicket: TicketCreateAttributes = {
-        event_id: eventId,
-        ticket_code: ticketCode,
-        ticket_type_code: ticketTypeCode,
+        eventId: eventId,
+        ticketCode: ticketCode,
+        ticketTypeCode: ticketTypeCode,
         status: 'available',
-        buyer_id: null,
-        qr_code_path: null,
+        buyerId: null,
+        qrCodePath: null,
       };
 
       // Generate QR Code
       const qrCodeFilePath = await generateQRCode(event.name, eventId, ticketTypeCode, ticketCode, ticketTemplatePath);
-      newTicket.qr_code_path = qrCodeFilePath;
+      newTicket.qrCodePath = qrCodeFilePath;
 
       return newTicket;
     } catch (error) {
@@ -58,6 +63,15 @@ class TicketService {
     return tickets;
   }
 
+  // Get ticket by eventId, ticketTypeCode, code
+  async getTicketByUniqueConstraint(eventId: string, ticketTypeCode: string, ticketCode: string) {
+    const ticket = await ticketRepository.findByCode(eventId, ticketTypeCode, ticketCode);
+    if (!ticket) {
+      throw new NotFoundError(messages.model.notFound('Ticket'));
+    }
+    return ticket;
+  }
+
   // Get ticket by ID
   async getTicketById(id: string) {
     const ticket = await ticketRepository.findById(id);
@@ -70,7 +84,7 @@ class TicketService {
   // Update an existing ticket by ID
   async updateTicket(id: string, updatedData: Partial<TicketModel>) {
     // Only allow status and buyer_id to be updated
-    const allowedFields = ['status', 'buyer_id'];
+    const allowedFields = ['status', 'buyerId'];
     const invalidFields = Object.keys(updatedData).filter((key) => !allowedFields.includes(key));
 
     if (invalidFields.length > 0) {
@@ -101,18 +115,26 @@ class TicketService {
   }
 
   // Method to generate and save bulk tickets
-  async generateBulkTickets(eventId: string, ticketTypeCode: string, totalCount: number, ticketTemplatePath: string): Promise<any[]> {
+  async generateBulkTickets(eventId: string, ticketTypeCode: string, totalCount: number, ticketTemplate: string) {
     try {
+      const ticketTemplatePath = await ticketTemplateService.getTicketTemplateById(ticketTemplate);
+
+      // Prepare an array to collect errors for failed tickets
+      const failedTickets: any[] = [];
       // Prepare an array to hold the ticket data
-      const ticketData: TicketCreateAttributes[] = [];
-      const ticketCreatedCount = await ticketRepository.getTicketCountByEventAndType(eventId, ticketTypeCode);
-      for (let i = 0; i < totalCount - ticketCreatedCount; i++) {
-        const ticket = await this.generateTicket(eventId, ticketTypeCode, ticketTemplatePath);
-        // Add the ticket data (with the QR code path if needed)
-        ticketData.push(ticket);
+      const createdTickets: TicketModel[] = [];
+      for (let i = 0; i < totalCount; i++) {
+        try {
+          const ticket = await this.generateTicket(eventId, ticketTypeCode, ticketTemplatePath.path);
+          const createdTicket = await this.createTicket(ticket);
+          createdTickets.push(createdTicket);
+        } catch (error) {
+          // Log the error and continue with the next ticket
+          failedTickets.push({ index: i, error });
+          console.error(`Error creating ticket ${i}:`, (error as Error).message);
+        }
       }
-      // Save all the tickets to the database in bulk
-      return await ticketRepository.createBulkTickets(ticketData);
+      return { createdTickets, failedTickets };
     } catch (error) {
       throw new Error(messages.ticket.error.generateBulkTickets((error as Error).message));
     }
@@ -127,6 +149,51 @@ class TicketService {
       isUnique = await ticketRepository.isTicketCodeUnique(eventId, ticketTypeCode, uniqueTicketCode);
     }
     return uniqueTicketCode;
+  };
+
+  // Process Excel File
+  processExcelFile = async (filePath: string, eventId: string) => {
+    // Find the event by its ID
+    const event = await eventRepository.findById(eventId);
+    if (!event) {
+      throw new NotFoundError(messages.model.notFound('Event'));
+    }
+
+    // Load the Excel file
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0]; // Get the first sheet
+    const sheet = workbook.Sheets[sheetName];
+
+    // Convert the sheet to JSON
+    const data: TTicketSaleRows[] = xlsx.utils.sheet_to_json(sheet);
+
+    const updatedTickets: TicketModel[] = [];
+    // Process each row
+    for (const row of data) {
+      const buyerName = row['Buyer Name'];
+      const buyerPhone = row['Buyer Phone'];
+      const buyerEmail = row['Buyer Email'];
+      const ticketCodes = row['Ticket Code'].split(',');
+
+      // Check or create buyer
+      const buyer = await buyerSerivce.findOrCreateBuyer(buyerName, buyerPhone, buyerEmail);
+
+      // Loop ticketCodes to update each ticket status
+      for (const code of ticketCodes) {
+        const ticketTypeCode = code.slice(0, -4); // Extract everything except the last 4 characters
+        const ticketCode = code.slice(-4); // Extract the last 4 characters
+
+        // Update ticket status and assign buyer
+        const ticket = await this.getTicketByUniqueConstraint(eventId, ticketTypeCode, ticketCode);
+        const updatedTicket = await this.updateTicket(ticket.id, { status: 'sold', buyerId: buyer.id });
+        updatedTickets.push(updatedTicket);
+      }
+
+      // Delete the file after processing
+      fs.unlinkSync(filePath);
+
+      return updatedTickets;
+    }
   };
 }
 export const ticketService = new TicketService();

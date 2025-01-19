@@ -16,7 +16,7 @@ export const buildFilters = (query: any, filterableColumns: string[], searchable
     filters.order = [[query.sortby, order]];
   }
 
-  // Generatl filters
+  // General filters
   if (filterableColumns.length) {
     filters.where = {};
     for (const column of filterableColumns) {
