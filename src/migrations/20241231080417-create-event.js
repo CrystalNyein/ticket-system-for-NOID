@@ -1,48 +1,45 @@
-import { QueryInterface, DataTypes } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     await queryInterface.createTable('Events', {
       id: {
         primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
       name: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       description: {
-        type: DataTypes.TEXT,
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       code: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
       start_date: {
-        type: DataTypes.DATEONLY,
+        type: Sequelize.DATEONLY,
         allowNull: false,
       },
       end_date: {
-        type: DataTypes.DATEONLY,
+        type: Sequelize.DATEONLY,
         allowNull: false,
       },
       createdAt: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
       updatedAt: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
   },
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     await queryInterface.dropTable('Events');
   },
 };

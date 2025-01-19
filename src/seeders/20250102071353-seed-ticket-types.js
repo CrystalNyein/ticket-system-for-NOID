@@ -1,9 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
-import { QueryInterface } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
+const {v4:uuidv4}=require('uuid');
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     await queryInterface.bulkInsert('ticket_types', [
       {
         id: uuidv4(),
@@ -56,7 +53,7 @@ module.exports = {
     ]);
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     await queryInterface.bulkDelete('ticket_types', {}, {});
   },
 };

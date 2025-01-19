@@ -1,18 +1,15 @@
 'use strict';
 
-import { QueryInterface, DataTypes } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     await queryInterface.createTable('ticket_scans', {
       id: {
         primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
       ticket_id: {
-        type: DataTypes.UUID,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'tickets',
@@ -22,18 +19,18 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       scan_date: {
-        type: DataTypes.DATEONLY,
+        type: Sequelize.DATEONLY,
         allowNull: false,
       },
       createdAt: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
       updatedAt: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
 
@@ -44,7 +41,7 @@ module.exports = {
       name: 'unique_ticket_scan_per_day',
     });
   },
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     await queryInterface.removeConstraint('ticket_scans', 'unique_ticket_scan_per_day');
     await queryInterface.dropTable('ticket_scans');
   },

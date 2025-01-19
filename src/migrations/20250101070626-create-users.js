@@ -1,10 +1,7 @@
 'use strict';
 
-import { DataTypes, QueryInterface } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -15,35 +12,35 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
       name: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       password: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       email: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: true,
       },
       created_at: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
       updated_at: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     /**
      * Add reverting commands here.
      *

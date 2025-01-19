@@ -1,10 +1,7 @@
 'use strict';
 
-import { QueryInterface } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -15,7 +12,7 @@ module.exports = {
     await queryInterface.renameTable('Events', 'events');
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     /**
      * Add reverting commands here.
      *

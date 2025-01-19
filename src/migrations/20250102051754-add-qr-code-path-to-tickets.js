@@ -1,15 +1,13 @@
-import { QueryInterface, DataTypes } from 'sequelize';
-
-export default {
-  up: async (queryInterface: QueryInterface) => {
+module.exports= {
+  up: async (queryInterface,Sequelize) => {
     await queryInterface.addColumn('tickets', 'qr_code_path', {
-      type: DataTypes.STRING,
+      type: Sequelize.STRING,
       allowNull: true, // Allowing null because it might be optional for some tickets
       defaultValue: null, // Default value is null
     });
   },
 
-  down: async (queryInterface: QueryInterface) => {
+  down: async (queryInterface,Sequelize) => {
     await queryInterface.removeColumn('tickets', 'qr_code_path');
   },
 };

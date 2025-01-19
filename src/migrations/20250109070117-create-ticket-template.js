@@ -1,26 +1,25 @@
 'use strict';
 
-import { DataTypes, QueryInterface } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     await queryInterface.createTable('ticket_templates', {
       id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
       event_id: {
-        type: DataTypes.UUID,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'events',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       ticket_type_code: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
         references: {
           model: 'ticket_types',
@@ -30,23 +29,23 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       path: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       created_at: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: DataTypes.NOW,
+        defaultValue: Sequelize.NOW,
       },
       updated_at: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: DataTypes.NOW,
+        defaultValue: Sequelize.NOW,
       },
     });
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     await queryInterface.dropTable('ticket_templates');
   },
 };

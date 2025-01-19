@@ -4,10 +4,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/app.ts",
-    "db:migrate": "ts-node ./node_modules/.bin/sequelize-cli db:migrate",
-    "db:migrate:undo": "ts-node ./node_modules/.bin/sequelize-cli db:migrate:undo",
-    "db:seed": "ts-node ./node_modules/.bin/sequelize-cli db:seed:all",
-    "db:seed:undo": "ts-node ./node_modules/.bin/sequelize-cli db:seed:undo:all"
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:seed:undo": "npx sequelize-cli db:seed:undo:all"
   },
   "sequelize-cli": {
     "config": "src/config/config.js",

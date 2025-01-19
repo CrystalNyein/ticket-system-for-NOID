@@ -1,42 +1,40 @@
 'use strict';
 
-import { DataTypes, QueryInterface } from 'sequelize';
-
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     await queryInterface.createTable('buyers', {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
       name: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       email: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: true,
       },
       phone: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       created_at: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
       updated_at: {
         allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     await queryInterface.dropTable('buyers');
   },
 };

@@ -1,10 +1,7 @@
 'use strict';
 
-import { QueryInterface } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     // List of tables and columns to be altered
     const tablesToAlter = [
       { tableName: 'events', columns: ['createdAt', 'updatedAt'] },
@@ -21,7 +18,7 @@ module.exports = {
     }
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     // List of tables and columns to be altered
     const tablesToAlter = [
       { tableName: 'events', columns: ['created_at', 'updated_at'] },

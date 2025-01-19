@@ -1,12 +1,10 @@
 'use strict';
 
-import { DataTypes, QueryInterface } from 'sequelize';
-
 module.exports = {
-  up: async (queryInterface: QueryInterface) => {
+  up: async (queryInterface,Sequelize) => {
     // Add the new `event_id` column
     await queryInterface.addColumn('tickets', 'event_id', {
-      type: DataTypes.UUID,
+      type: Sequelize.UUID,
       allowNull: false,
       references: {
         model: 'events', // Ensure the `events` table exists
@@ -29,10 +27,10 @@ module.exports = {
     });
   },
 
-  down: async (queryInterface: QueryInterface) => {
+  down: async (queryInterface,Sequelize) => {
     // Re-add the `event_code` column
     await queryInterface.addColumn('tickets', 'event_code', {
-      type: DataTypes.STRING,
+      type: Sequelize.STRING,
       allowNull: false,
     });
 

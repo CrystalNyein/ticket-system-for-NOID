@@ -1,10 +1,7 @@
 'use strict';
 
-import { QueryInterface } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     await queryInterface.addConstraint('ticket_templates', {
       fields: ['event_id', 'ticket_type_code'],
       type: 'unique',
@@ -12,7 +9,7 @@ module.exports = {
     });
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     await queryInterface.removeConstraint('ticket_templates', 'unique_event_id_ticket_type_code_constraint');
   },
 };

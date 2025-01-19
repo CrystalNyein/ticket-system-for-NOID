@@ -1,8 +1,5 @@
-import { DataTypes, QueryInterface } from 'sequelize';
-
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface: QueryInterface) {
+  async up(queryInterface,Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -10,7 +7,7 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
     await queryInterface.addColumn('tickets', 'buyer_id', {
-      type: DataTypes.UUID,
+      type: Sequelize.UUID,
       allowNull: true,
       references: {
         model: 'buyers',
@@ -21,7 +18,7 @@ module.exports = {
     });
   },
 
-  async down(queryInterface: QueryInterface) {
+  async down(queryInterface,Sequelize) {
     /**
      * Add reverting commands here.
      *
