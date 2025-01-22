@@ -15,8 +15,8 @@ import https from "https";
 const app = express();
 const PORT = env.appPort;
 const options = {
-  key: fs.readFileSync("key.pem"),
-  cert: fs.readFileSync("cert.pem"),
+  key: fs.readFileSync("certs/LONE.local-key.pem"),
+  cert: fs.readFileSync("certs/LONE.local.pem"),
 };
 app.use(express.json()); // To parse JSON bodies
 app.use(morgan("dev"));
