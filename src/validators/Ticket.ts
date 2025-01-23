@@ -32,4 +32,11 @@ export default {
       }),
     }),
   }),
+  ticketStatsByDate: Joi.object({
+    startDate: Joi.date().required(),
+    endDate: Joi.date().required(),
+  }),
+  ticketStatsByEvent: Joi.object({
+    eventId: Joi.string().required(),
+  }),
 };

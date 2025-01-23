@@ -57,3 +57,13 @@ export const deleteEvent = async (req: Request, res: Response): Promise<any> => 
     return ResponseWrapper.error(res, error);
   }
 };
+
+// Get Recent Event Stat
+export const getRecentEventStats = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const result = await eventService.getRecentEventStats();
+    return ResponseWrapper.success(res, result, messages.model.retrieved('Recent Event'));
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};

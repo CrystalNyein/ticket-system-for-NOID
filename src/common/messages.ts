@@ -38,6 +38,9 @@ export default {
     noFileUpload: 'No file uploaded',
     missingMetadata: 'Missing required metadata: eventId and ticketTypeCode',
   },
+  event: {
+    noRecent: 'There is no recent event.',
+  },
   ticket: {
     error: {
       generateTicket: (message: string) => `Error generating ticket: ${message}`,
@@ -47,6 +50,7 @@ export default {
       invalidQR: 'Invalid QR code data.',
       eventNotActive: 'The event is not active for today',
       alreadyScanned: 'This ticket has already been used for today',
+      noTicketScanData: 'There is no ticket scan data related to this qr code',
       invalid: 'This ticket is invalid',
     },
     warning: {

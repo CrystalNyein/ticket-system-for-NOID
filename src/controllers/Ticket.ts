@@ -93,3 +93,33 @@ export const uploadAndProcessExcel = async (req: Request, res: Response): Promis
     return ResponseWrapper.error(res, error);
   }
 };
+export const getTicketByQR = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { qrData } = req.body; // Expecting QR code data in request body
+    const result = await ticketService.getTicketByQR(qrData);
+    return ResponseWrapper.success(res, result, messages.ticket.success.scanned);
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};
+// Get Ticket Stats by Date
+export const getTicketStatsByDate = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { startDate, endDate } = req.body;
+    const result = await ticketService.getTicketStatsByDate(startDate, endDate);
+    return ResponseWrapper.success(res, result, messages.model.retrieved('Ticket Stats'));
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};
+
+// Get Ticket Stats by Event
+export const getTicketStatsByEvent = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { eventId } = req.body;
+    const result = await ticketService.getTicketStatsByEvent(eventId);
+    return ResponseWrapper.success(res, result, messages.model.retrieved('Ticket Stats'));
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};

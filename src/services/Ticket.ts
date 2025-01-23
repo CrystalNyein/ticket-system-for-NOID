@@ -1,63 +1,51 @@
-import NotFoundError from "../common/errors/types/NotFoundError";
-import { buildFilters } from "../common/helpers/buildFilters";
-import messages from "../common/messages";
-import { TicketCreateAttributes } from "../interfaces/Ticket";
-import { TicketModel } from "../models";
-import { eventRepository } from "../repositories/Event";
-import { ticketRepository } from "../repositories/Ticket";
-import { generateQRCode } from "../utils/qrUtils";
-import { generateRandomTicketCode } from "../utils/ticketUtils";
-import { buyerSerivce } from "./Buyer";
-import { ticketTemplateService } from "./TicketTemplate";
-import xlsx from "xlsx";
-import fs from "fs";
-import { TTicketSaleRows } from "../common/types";
+import NotFoundError from '../common/errors/types/NotFoundError';
+import { buildFilters } from '../common/helpers/buildFilters';
+import messages from '../common/messages';
+import { TicketCreateAttributes } from '../interfaces/Ticket';
+import { TicketModel } from '../models';
+import { eventRepository } from '../repositories/Event';
+import { ticketRepository } from '../repositories/Ticket';
+import { generateQRCode } from '../utils/qrUtils';
+import { generateRandomTicketCode } from '../utils/ticketUtils';
+import { buyerSerivce } from './Buyer';
+import { ticketTemplateService } from './TicketTemplate';
+import xlsx from 'xlsx';
+import fs from 'fs';
+import { TTicketSaleRows } from '../common/types';
+import dayjs from 'dayjs';
+import { ticketScanRepository } from '../repositories/TicketScan';
+import { buyerRepository } from '../repositories/Buyer';
 
 class TicketService {
   // Method to generate a single ticket (prepare ticket data)
-  async generateTicket(
-    eventId: string,
-    ticketTypeCode: string,
-    ticketTemplatePath: string
-  ): Promise<TicketCreateAttributes> {
+  async generateTicket(eventId: string, ticketTypeCode: string, ticketTemplatePath: string): Promise<TicketCreateAttributes> {
     try {
       // Find the event by its ID
       const event = await eventRepository.findById(eventId);
       if (!event) {
-        throw new NotFoundError(messages.model.notFound("Event"));
+        throw new NotFoundError(messages.model.notFound('Event'));
       }
 
       // Generate unique ticket code
-      const ticketCode = await this.generateUniqueTicketCode(
-        eventId,
-        ticketTypeCode
-      ); // Generate unique ticket code
+      const ticketCode = await this.generateUniqueTicketCode(eventId, ticketTypeCode); // Generate unique ticket code
 
       // Create the ticket data for this ticket
       const newTicket: TicketCreateAttributes = {
         eventId: eventId,
         ticketCode: ticketCode,
         ticketTypeCode: ticketTypeCode,
-        status: "available",
+        status: 'available',
         buyerId: null,
         qrCodePath: null,
       };
 
       // Generate QR Code
-      const qrCodeFilePath = await generateQRCode(
-        event.name,
-        eventId,
-        ticketTypeCode,
-        ticketCode,
-        ticketTemplatePath
-      );
+      const qrCodeFilePath = await generateQRCode(event.name, eventId, ticketTypeCode, ticketCode, ticketTemplatePath);
       newTicket.qrCodePath = qrCodeFilePath;
 
       return newTicket;
     } catch (error) {
-      throw new Error(
-        messages.ticket.error.generateTicket((error as Error).message)
-      );
+      throw new Error(messages.ticket.error.generateTicket((error as Error).message));
     }
   }
 
@@ -68,33 +56,21 @@ class TicketService {
 
   // Get all tickets
   async getAllTickets(query: any) {
-    const filters = buildFilters(
-      query,
-      TicketModel.filterableColumns,
-      TicketModel.searchableColumns
-    );
+    const filters = buildFilters(query, TicketModel.filterableColumns, TicketModel.searchableColumns);
 
     // Fetch tickets with generated filters
     const tickets = await ticketRepository.findAll(filters);
     if (!tickets || tickets.length === 0) {
-      throw new NotFoundError(messages.model.notFound("Tickets"));
+      throw new NotFoundError(messages.model.notFound('Tickets'));
     }
     return tickets;
   }
 
   // Get ticket by eventId, ticketTypeCode, code
-  async getTicketByUniqueConstraint(
-    eventId: string,
-    ticketTypeCode: string,
-    ticketCode: string
-  ) {
-    const ticket = await ticketRepository.findByCode(
-      eventId,
-      ticketTypeCode,
-      ticketCode
-    );
+  async getTicketByUniqueConstraint(eventId: string, ticketTypeCode: string, ticketCode: string) {
+    const ticket = await ticketRepository.findByCode(eventId, ticketTypeCode, ticketCode);
     if (!ticket) {
-      throw new NotFoundError(messages.model.notFound("Ticket"));
+      throw new NotFoundError(messages.model.notFound('Ticket'));
     }
     return ticket;
   }
@@ -103,32 +79,77 @@ class TicketService {
   async getTicketById(id: string) {
     const ticket = await ticketRepository.findById(id);
     if (!ticket) {
-      throw new NotFoundError(messages.model.notFound("Ticket"));
+      throw new NotFoundError(messages.model.notFound('Ticket'));
     }
     return ticket;
+  }
+
+  // Get ticket details by QR
+  async getTicketByQR(qrData: string) {
+    try {
+      // Step 1: Parse the QR Code data
+      const [eventId, ticketTypeCode, ticketCode] = qrData.split(':');
+      if (!eventId || !ticketTypeCode || !ticketCode) {
+        throw new Error(messages.ticket.error.invalidQR);
+      }
+
+      // Step 2: Find the ticket by ticketCode and validate
+      const ticket = await ticketRepository.findByCode(eventId, ticketTypeCode, ticketCode);
+      if (!ticket) {
+        throw new NotFoundError(messages.model.notFound('Ticket'));
+      }
+
+      // Step 3: Validate event dates
+      const event = await eventRepository.findById(eventId);
+      if (!event) {
+        throw new NotFoundError(messages.model.notFound('Event'));
+      }
+
+      const currentDate = dayjs();
+      const eventStartDate = dayjs(event.startDate);
+      const eventEndDate = dayjs(event.endDate);
+
+      if (currentDate.isBefore(eventStartDate) || currentDate.isAfter(eventEndDate)) {
+        throw new Error(messages.ticket.error.eventNotActive);
+      }
+
+      // Step 4: Check for existing scan record for today
+      const ticketScan = await ticketScanRepository.findByTicketIdAndDate(ticket.id, currentDate.format('YYYY-MM-DD'));
+
+      if (!ticketScan) {
+        throw new Error(messages.ticket.error.noTicketScanData);
+      }
+
+      // Step 6: Fetch buyer data if available
+      const buyer = await buyerRepository.findById(ticket.buyerId);
+
+      return {
+        ticket,
+        buyer,
+        ticketScan,
+      };
+    } catch (error) {
+      throw new Error(messages.ticket.error.scan((error as Error).message));
+    }
   }
 
   // Update an existing ticket by ID
   async updateTicket(id: string, updatedData: Partial<TicketModel>) {
     // Only allow status and buyer_id to be updated
-    const allowedFields = ["status", "buyerId"];
-    const invalidFields = Object.keys(updatedData).filter(
-      (key) => !allowedFields.includes(key)
-    );
+    const allowedFields = ['status', 'buyerId'];
+    const invalidFields = Object.keys(updatedData).filter((key) => !allowedFields.includes(key));
 
     if (invalidFields.length > 0) {
-      throw new Error(
-        messages.ticket.error.invalidFieldsEdit(invalidFields.join(", "))
-      );
+      throw new Error(messages.ticket.error.invalidFieldsEdit(invalidFields.join(', ')));
     }
 
     const ticket = await ticketRepository.findById(id);
     if (!ticket) {
-      throw new NotFoundError(messages.model.notFound("Ticket"));
+      throw new NotFoundError(messages.model.notFound('Ticket'));
     }
     const [updatedRows] = await ticketRepository.update(id, updatedData);
     if (updatedRows === 0) {
-      throw new NotFoundError(messages.model.notFound("Ticket"));
+      throw new NotFoundError(messages.model.notFound('Ticket'));
     }
     // Fetch the updated ticket to return the full entity
     const updatedTicket = await this.getTicketById(id);
@@ -139,22 +160,16 @@ class TicketService {
   async deleteTicket(id: string) {
     const ticket = await ticketRepository.findById(id);
     if (!ticket) {
-      throw new NotFoundError(messages.model.notFound("Ticket"));
+      throw new NotFoundError(messages.model.notFound('Ticket'));
     }
     await ticketRepository.delete(id);
     return { id };
   }
 
   // Method to generate and save bulk tickets
-  async generateBulkTickets(
-    eventId: string,
-    ticketTypeCode: string,
-    totalCount: number,
-    ticketTemplate: string
-  ) {
+  async generateBulkTickets(eventId: string, ticketTypeCode: string, totalCount: number, ticketTemplate: string) {
     try {
-      const ticketTemplatePath =
-        await ticketTemplateService.getTicketTemplateById(ticketTemplate);
+      const ticketTemplatePath = await ticketTemplateService.getTicketTemplateById(ticketTemplate);
 
       // Prepare an array to collect errors for failed tickets
       const failedTickets: any[] = [];
@@ -162,44 +177,28 @@ class TicketService {
       const createdTickets: TicketModel[] = [];
       for (let i = 0; i < totalCount; i++) {
         try {
-          const ticket = await this.generateTicket(
-            eventId,
-            ticketTypeCode,
-            ticketTemplatePath.path
-          );
+          const ticket = await this.generateTicket(eventId, ticketTypeCode, ticketTemplatePath.path);
           const createdTicket = await this.createTicket(ticket);
           createdTickets.push(createdTicket);
         } catch (error) {
           // Log the error and continue with the next ticket
           failedTickets.push({ index: i, error });
-          console.error(
-            `Error creating ticket ${i}:`,
-            (error as Error).message
-          );
+          console.error(`Error creating ticket ${i}:`, (error as Error).message);
         }
       }
       return { createdTickets, failedTickets };
     } catch (error) {
-      throw new Error(
-        messages.ticket.error.generateBulkTickets((error as Error).message)
-      );
+      throw new Error(messages.ticket.error.generateBulkTickets((error as Error).message));
     }
   }
 
   // Function to generate a unique ticket code
-  generateUniqueTicketCode = async (
-    eventId: string,
-    ticketTypeCode: string
-  ): Promise<string> => {
-    let uniqueTicketCode = "";
+  generateUniqueTicketCode = async (eventId: string, ticketTypeCode: string): Promise<string> => {
+    let uniqueTicketCode = '';
     let isUnique = false;
     while (!isUnique) {
       uniqueTicketCode = generateRandomTicketCode();
-      isUnique = await ticketRepository.isTicketCodeUnique(
-        eventId,
-        ticketTypeCode,
-        uniqueTicketCode
-      );
+      isUnique = await ticketRepository.isTicketCodeUnique(eventId, ticketTypeCode, uniqueTicketCode);
     }
     return uniqueTicketCode;
   };
@@ -209,7 +208,7 @@ class TicketService {
     // Find the event by its ID
     const event = await eventRepository.findById(eventId);
     if (!event) {
-      throw new NotFoundError(messages.model.notFound("Event"));
+      throw new NotFoundError(messages.model.notFound('Event'));
     }
 
     // Load the Excel file
@@ -223,17 +222,13 @@ class TicketService {
     const updatedTickets: TicketModel[] = [];
     // Process each row
     for (const row of data) {
-      const buyerName = row["Buyer Name"];
-      const buyerPhone = row["Buyer Phone"];
-      const buyerEmail = row["Buyer Email"];
-      const ticketCodes = row["Ticket Code"].split(",");
+      const buyerName = row['Buyer Name'];
+      const buyerPhone = row['Buyer Phone'];
+      const buyerEmail = row['Buyer Email'];
+      const ticketCodes = row['Ticket Code'].split(',');
 
       // Check or create buyer
-      const buyer = await buyerSerivce.findOrCreateBuyer(
-        buyerName,
-        buyerPhone,
-        buyerEmail
-      );
+      const buyer = await buyerSerivce.findOrCreateBuyer(buyerName, buyerPhone, buyerEmail);
 
       // Loop ticketCodes to update each ticket status
       for (const code of ticketCodes) {
@@ -241,13 +236,9 @@ class TicketService {
         const ticketCode = code.slice(-5); // Extract the last 5 characters
 
         // Update ticket status and assign buyer
-        const ticket = await this.getTicketByUniqueConstraint(
-          eventId,
-          ticketTypeCode,
-          ticketCode
-        );
+        const ticket = await this.getTicketByUniqueConstraint(eventId, ticketTypeCode, ticketCode);
         const updatedTicket = await this.updateTicket(ticket.id, {
-          status: "sold",
+          status: 'sold',
           buyerId: buyer.id,
         });
         updatedTickets.push(updatedTicket);
@@ -259,5 +250,17 @@ class TicketService {
       return updatedTickets;
     }
   };
+  // Get Ticket Statistics By Date
+  async getTicketStatsByDate(startDate: Date, endDate: Date) {
+    const ticketCount = await ticketRepository.getTicketCountByPeriod(startDate, endDate);
+    const soldTicketCount = await ticketRepository.getTicketCountByPeriod(startDate, endDate, true);
+    return { ticketCount, soldTicketCount };
+  }
+  // Get Ticket Statistics By Event
+  async getTicketStatsByEvent(eventId: string) {
+    const ticketCount = await ticketRepository.getTicketCount(eventId);
+    const soldTicketCount = await ticketRepository.getSoldTicketCount(eventId);
+    return { ticketCount, soldTicketCount };
+  }
 }
 export const ticketService = new TicketService();

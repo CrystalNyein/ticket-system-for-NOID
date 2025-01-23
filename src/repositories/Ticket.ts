@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { TicketCreateAttributes } from '../interfaces/Ticket';
 import { TicketModel } from '../models';
 
@@ -49,6 +50,33 @@ class TicketRepository {
         ticketTypeCode,
         ticketCode,
       },
+    });
+  }
+  async getTicketCount(eventId?: string) {
+    const whereClause = eventId ? { eventId } : {};
+    return await TicketModel.count({
+      where: whereClause,
+    });
+  }
+  async getSoldTicketCount(eventId?: string) {
+    const whereClause = eventId ? { eventId } : {};
+    return await TicketModel.count({
+      where: { status: 'sold', ...whereClause },
+    });
+  }
+  async getTicketCountByPeriod(startDate: Date, endDate: Date, sold: boolean = false): Promise<number> {
+    const whereClause: any = {
+      createdAt: {
+        [Op.between]: [startDate, endDate], // Filter by date range
+      },
+    };
+
+    if (sold) {
+      whereClause.status = 'sold';
+    }
+
+    return await TicketModel.count({
+      where: whereClause,
     });
   }
 }

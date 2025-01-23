@@ -5,6 +5,7 @@ import messages from '../common/messages';
 import { EventCreateAttributes } from '../interfaces/Event';
 import { EventModel } from '../models';
 import { eventRepository } from '../repositories/Event';
+import { ticketRepository } from '../repositories/Ticket';
 
 class EventService {
   // Helper function to check for conflicts in event name
@@ -74,6 +75,17 @@ class EventService {
     }
     await eventRepository.delete(id);
     return { id };
+  }
+
+  // Get Recent Event Statistics
+  async getRecentEventStats() {
+    const event = await eventRepository.getRecentEvent();
+    if (event.length === 0) {
+      throw new NotFoundError(messages.event.noRecent);
+    }
+    const ticketCount = await ticketRepository.getTicketCount(event[0].id);
+    const soldTicketCount = await ticketRepository.getSoldTicketCount(event[0].id);
+    return { event: event[0], ticketCount, soldTicketCount };
   }
 }
 export const eventService = new EventService();

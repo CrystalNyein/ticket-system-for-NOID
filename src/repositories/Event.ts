@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { EventCreateAttributes } from '../interfaces/Event';
 import { EventModel } from '../models';
 
@@ -17,6 +18,17 @@ class EventRepository {
   }
   async delete(id: string) {
     return await EventModel.destroy({ where: { id } });
+  }
+  async getRecentEvent() {
+    return await EventModel.findAll({
+      where: {
+        endDate: {
+          [Op.lte]: new Date(), // Include only events that have ended up to the current date
+        },
+      },
+      order: [['endDate', 'DESC']],
+      limit: 1,
+    });
   }
 }
 export const eventRepository = new EventRepository();

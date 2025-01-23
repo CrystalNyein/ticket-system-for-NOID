@@ -52,7 +52,7 @@ class TicketScanService {
         ticketId: ticket.id,
         scanDate: currentDate.toDate(),
       };
-      await ticketScanRepository.create(newScan);
+      const ticketScan = await ticketScanRepository.create(newScan);
 
       // Step 6: Fetch buyer data if available
       const buyer = await buyerRepository.findById(ticket.buyerId);
@@ -60,6 +60,7 @@ class TicketScanService {
       return {
         ticket,
         buyer,
+        ticketScan,
       };
     } catch (error) {
       throw new Error(messages.ticket.error.scan((error as Error).message));

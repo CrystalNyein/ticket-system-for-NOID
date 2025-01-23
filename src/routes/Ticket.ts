@@ -1,4 +1,15 @@
-import { createTicket, deleteTicket, generateBulkTickets, getAllTickets, getTicketById, updateTicket, uploadAndProcessExcel } from '../controllers/Ticket';
+import {
+  createTicket,
+  deleteTicket,
+  generateBulkTickets,
+  getAllTickets,
+  getTicketById,
+  getTicketByQR,
+  getTicketStatsByDate,
+  getTicketStatsByEvent,
+  updateTicket,
+  uploadAndProcessExcel,
+} from '../controllers/Ticket';
 import { Router } from 'express';
 import { authorize } from '../middleware/authorization';
 import { createValidator } from 'express-joi-validation';
@@ -42,8 +53,11 @@ const validator = createValidator();
 
 router.post('/import-ticket-sales', upload.single('file'), validator.body(validators.importTicketSales), uploadAndProcessExcel);
 router.post('/scan', validator.body(validators.scanTicket), scanTicket);
+router.post('/scan-details', validator.body(validators.scanTicket), getTicketByQR);
 router.post('/', authorize(['admin', 'event_manager']), validator.body(validators.createTicket), createTicket);
 router.post('/bulk', authorize(['admin', 'event_manager']), validator.body(validators.generateBulkTickets), generateBulkTickets);
+router.post('/stats-by-date', validator.body(validators.ticketStatsByDate), getTicketStatsByDate);
+router.post('/stats-by-event', validator.body(validators.ticketStatsByEvent), getTicketStatsByEvent);
 router.get('/', getAllTickets);
 router.get('/:id', getTicketById);
 router.put('/:id', validator.body(validators.updateTicket), updateTicket);
