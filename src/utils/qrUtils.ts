@@ -33,16 +33,16 @@ export const generateQRCode = async (
     ctx.drawImage(templateImage, 0, 0, templateImage.width, templateImage.height);
 
     // Generate the QR code
-    const qrCodeCanvas = createCanvas(550, 550);
-    const qrSize = 550;
-    await QRCode.toCanvas(qrCodeCanvas, `${eventId}:${ticketTypeCode}:${ticketCode}`);
-    ctx.drawImage(qrCodeCanvas, canvas.width - qrSize - 30, canvas.height - qrSize - 80, qrSize, qrSize);
+    const qrCodeCanvas = createCanvas(280, 280);
+    const qrSize = 280;
+    await QRCode.toCanvas(qrCodeCanvas, `${eventId}:${ticketTypeCode}:${ticketCode}`, { color: { light: '#00000000' } });
+    ctx.drawImage(qrCodeCanvas, canvas.width - qrSize - 155, canvas.height - qrSize - 230, qrSize, qrSize);
 
     // Add text below the QR code
-    ctx.font = 'bold 48px Times New Roman';
+    ctx.font = 'bold 40px Times New Roman';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'black';
-    ctx.fillText(qrCodeText, canvas.width - qrSize / 2 - 15, canvas.height - 45);
+    ctx.fillText(qrCodeText, canvas.width - qrSize / 2 - 155, canvas.height - 195);
 
     // Save the final image
     const buffer = canvas.toBuffer('image/png');
