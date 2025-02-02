@@ -21,7 +21,7 @@ export const createTicketTemplate = async (req: Request, res: Response): Promise
     const ticketTemplateData: TicketTemplateCreateAttributes = {
       eventId,
       ticketTypeCode,
-      filename: file.fieldname,
+      filename: file.filename,
       path: file.path,
     };
 
