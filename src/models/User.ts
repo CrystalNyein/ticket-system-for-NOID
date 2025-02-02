@@ -38,6 +38,7 @@ UserModel.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true, // <-- Enforce unique constraint
     },
     email: {
       type: DataTypes.STRING,

@@ -6,6 +6,9 @@ class UserRepository {
   async findByEmail(email: string) {
     return await UserModel.findOne({ where: { email } });
   }
+  async findByEmailOrName(identifier: string) {
+    return await UserModel.findOne({ where: { [Op.or]: [{ email: identifier }, { name: identifier }] } });
+  }
   // Find all users with optional filters, pagination, and sorting
   async findAll(filters: any) {
     return await UserModel.findAll(filters);

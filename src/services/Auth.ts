@@ -11,8 +11,8 @@ import UnauthorizedError from '../common/errors/types/UnauthorizedError';
 import messages from '../common/messages';
 
 class AuthService {
-  async login(email: string, password: string) {
-    const user = await userRepository.findByEmail(email);
+  async login(identifier: string, password: string) {
+    const user = await userRepository.findByEmailOrName(identifier);
     if (!user) throw new UnauthorizedError(messages.auth.loginFail);
 
     // Use the instance method to compare passwords

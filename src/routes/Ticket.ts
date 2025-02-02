@@ -52,14 +52,14 @@ export const upload = multer({
 
 const validator = createValidator();
 
-router.post('/import-ticket-sales', upload.single('file'), validator.body(validators.importTicketSales), uploadAndProcessExcel);
+router.post('/import-ticket-sales', authorize(['admin', 'event_manager']), upload.single('file'), validator.body(validators.importTicketSales), uploadAndProcessExcel);
 router.post('/door-sales', validator.body(validators.doorSales), updateDoorSaleTickets);
 router.post('/scan', validator.body(validators.scanTicket), scanTicket);
 router.post('/scan-details', validator.body(validators.scanTicket), getTicketByQR);
 router.post('/', authorize(['admin', 'event_manager']), validator.body(validators.createTicket), createTicket);
 router.post('/bulk', authorize(['admin', 'event_manager']), validator.body(validators.generateBulkTickets), generateBulkTickets);
-router.post('/stats-by-date', validator.body(validators.ticketStatsByDate), getTicketStatsByDate);
-router.post('/stats-by-event', validator.body(validators.ticketStatsByEvent), getTicketStatsByEvent);
+router.post('/stats-by-date', authorize(['admin', 'event_manager']), validator.body(validators.ticketStatsByDate), getTicketStatsByDate);
+router.post('/stats-by-event', authorize(['admin', 'event_manager']), validator.body(validators.ticketStatsByEvent), getTicketStatsByEvent);
 router.get('/', getAllTickets);
 router.get('/:id', getTicketById);
 router.put('/:id', validator.body(validators.updateTicket), updateTicket);
