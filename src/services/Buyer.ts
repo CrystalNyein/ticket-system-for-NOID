@@ -14,7 +14,6 @@ class BuyerService {
         }
         return existingBuyer;
       }
-
       // Create a new buyer if no match is found
       const newBuyer = await buyerRepository.create({ name, phone, email });
       return newBuyer;

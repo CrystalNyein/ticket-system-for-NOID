@@ -7,6 +7,7 @@ import {
   getTicketByQR,
   getTicketStatsByDate,
   getTicketStatsByEvent,
+  updateDoorSaleTickets,
   updateTicket,
   uploadAndProcessExcel,
 } from '../controllers/Ticket';
@@ -52,6 +53,7 @@ export const upload = multer({
 const validator = createValidator();
 
 router.post('/import-ticket-sales', upload.single('file'), validator.body(validators.importTicketSales), uploadAndProcessExcel);
+router.post('/door-sales', validator.body(validators.doorSales), updateDoorSaleTickets);
 router.post('/scan', validator.body(validators.scanTicket), scanTicket);
 router.post('/scan-details', validator.body(validators.scanTicket), getTicketByQR);
 router.post('/', authorize(['admin', 'event_manager']), validator.body(validators.createTicket), createTicket);

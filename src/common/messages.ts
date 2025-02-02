@@ -55,6 +55,7 @@ export default {
     },
     warning: {
       partialSuccess: 'Some tickets failed to generate',
+      partialImportSuccess: 'Some ticket codes are failed to import',
     },
     success: {
       scanned: 'Ticket scanned successfully.',

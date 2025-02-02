@@ -24,16 +24,10 @@ BuyerModel.init(
     email: {
       type: DataTypes.STRING,
       allowNull: true,
-      validate: {
-        isEmail: true,
-      },
     },
     phone: {
       type: DataTypes.STRING,
       allowNull: true,
-      validate: {
-        is: /^[0-9+\- ]+$/i, // Ensures the phone number contains only numbers, +, -, or spaces
-      },
     },
     createdAt: {
       type: DataTypes.DATE,

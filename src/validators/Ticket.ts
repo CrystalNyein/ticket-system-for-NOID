@@ -32,6 +32,13 @@ export default {
       }),
     }),
   }),
+  doorSales: Joi.object({
+    eventId: Joi.string().required(),
+    ticketCode: Joi.string().required(),
+    buyerName: Joi.string().required(),
+    buyerPhone: Joi.string().required(),
+    buyerEmail: Joi.string().allow('').optional(),
+  }),
   ticketStatsByDate: Joi.object({
     startDate: Joi.date().required(),
     endDate: Joi.date().required(),

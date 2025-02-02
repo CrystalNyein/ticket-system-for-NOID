@@ -1,5 +1,5 @@
 import { TicketTemplateCreateAttributes } from '../interfaces/TicketTemplate';
-import { TicketTemplateModel } from '../models';
+import { EventModel, TicketTemplateModel } from '../models';
 
 class TicketTemplateRepository {
   async create(ticketTemplateData: TicketTemplateCreateAttributes) {
@@ -7,7 +7,15 @@ class TicketTemplateRepository {
   }
   // Find all ticketTemplates with optional filters, pagination, and sorting
   async findAll(filters: any) {
-    return await TicketTemplateModel.findAll(filters);
+    return await TicketTemplateModel.findAll({
+      ...filters,
+      include: [
+        {
+          model: EventModel,
+          as: 'event',
+        },
+      ],
+    });
   }
   async findById(id: string) {
     return await TicketTemplateModel.findByPk(id);

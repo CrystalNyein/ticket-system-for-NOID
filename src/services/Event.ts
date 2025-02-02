@@ -34,9 +34,6 @@ class EventService {
 
     // Fetch events with generated filters
     const events = await eventRepository.findAll(filters);
-    // if (!events || events.length === 0) {
-    //   throw new NotFoundError(messages.model.notFound('Events'));
-    // }
     return events;
   }
 

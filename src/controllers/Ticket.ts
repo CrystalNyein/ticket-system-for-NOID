@@ -87,12 +87,33 @@ export const uploadAndProcessExcel = async (req: Request, res: Response): Promis
     if (!eventId) {
       return ResponseWrapper.error(res, messages.error.missingMetadata, 400);
     }
-    const updatedTickets = await ticketService.processExcelFile(file.path, eventId);
-    return ResponseWrapper.success(res, updatedTickets, messages.model.updated('Tickets'));
+    const { updatedTickets, failedTickets } = await ticketService.processExcelFile(file.path, eventId);
+    return ResponseWrapper.success(
+      res,
+      { updatedTickets, failedTickets },
+      failedTickets.length > 0 ? messages.ticket.warning.partialImportSuccess : messages.model.updated('Tickets'),
+      failedTickets.length > 0 ? 206 : 201,
+    );
   } catch (error) {
     return ResponseWrapper.error(res, error);
   }
 };
+
+export const updateDoorSaleTickets = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { eventId, ticketCode, buyerName, buyerPhone, buyerEmail } = req.body;
+    const { updatedTickets, failedTickets } = await ticketService.updateTicketSales(eventId, ticketCode, buyerName, buyerPhone, buyerEmail);
+    return ResponseWrapper.success(
+      res,
+      { updatedTickets, failedTickets },
+      failedTickets.length > 0 ? messages.ticket.warning.partialImportSuccess : messages.model.updated('Tickets'),
+      failedTickets.length > 0 ? 206 : 201,
+    );
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};
+
 export const getTicketByQR = async (req: Request, res: Response): Promise<any> => {
   try {
     const { qrData } = req.body; // Expecting QR code data in request body

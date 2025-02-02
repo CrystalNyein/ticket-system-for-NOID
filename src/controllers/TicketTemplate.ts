@@ -3,6 +3,7 @@ import ResponseWrapper from '../utils/ResponseWrapper';
 import { ticketTemplateService } from '../services/TicketTemplate';
 import messages from '../common/messages';
 import { TicketTemplateCreateAttributes } from '../interfaces/TicketTemplate';
+import path from 'path';
 
 // Create a new ticketTemplate
 export const createTicketTemplate = async (req: Request, res: Response): Promise<any> => {
@@ -21,7 +22,7 @@ export const createTicketTemplate = async (req: Request, res: Response): Promise
       eventId,
       ticketTypeCode,
       filename: file.fieldname,
-      path: file.path,
+      path: path.resolve(__dirname, '../../', file.path),
     };
 
     const ticketTemplate = await ticketTemplateService.createTicketTemplate(ticketTemplateData);
