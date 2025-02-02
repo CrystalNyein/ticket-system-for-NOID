@@ -46,4 +46,8 @@ export default {
   ticketStatsByEvent: Joi.object({
     eventId: Joi.string().required(),
   }),
+  deleteTicketsByParam: Joi.object({
+    eventId: Joi.string().required(),
+    ticketTypeCode: Joi.string().required(),
+  }),
 };

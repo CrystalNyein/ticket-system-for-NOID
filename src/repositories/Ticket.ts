@@ -1,6 +1,6 @@
-import { Op } from 'sequelize';
+import { col, fn, literal, Op } from 'sequelize';
 import { TicketCreateAttributes } from '../interfaces/Ticket';
-import { TicketModel } from '../models';
+import { EventModel, TicketModel } from '../models';
 
 class TicketRepository {
   async create(ticketData: TicketCreateAttributes) {
@@ -76,6 +76,37 @@ class TicketRepository {
     }
 
     return await TicketModel.count({
+      where: whereClause,
+    });
+  }
+
+  async getTicketCountsByTicketCodeAndEvent() {
+    return await TicketModel.findAll({
+      attributes: [
+        'eventId',
+        [col('event.name'), 'eventName'],
+        'ticketTypeCode',
+        [fn('COUNT', col('Ticket.id')), 'Total Tickets'],
+        [fn('COUNT', literal("CASE WHEN Ticket.status='sold' THEN 1 END")), 'Sold Tickets'],
+      ],
+      include: [
+        {
+          model: EventModel,
+          as: 'event',
+          attributes: [],
+        },
+      ],
+      group: ['eventId', 'ticketTypeCode'],
+      raw: true,
+    });
+  }
+
+  async deleteTicketsByEventAndType(eventId: string, ticketTypeCode: string) {
+    const whereClause: any = { eventId };
+    if (ticketTypeCode !== 'ALL') {
+      whereClause.ticketTypeCode = ticketTypeCode;
+    }
+    return await TicketModel.destroy({
       where: whereClause,
     });
   }

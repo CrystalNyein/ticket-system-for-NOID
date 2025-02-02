@@ -144,3 +144,24 @@ export const getTicketStatsByEvent = async (req: Request, res: Response): Promis
     return ResponseWrapper.error(res, error);
   }
 };
+
+// Get Ticket Statistics by TicketTypeCode and Event
+export const getTicketSummary = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const tickets = await ticketService.getTicketSummary();
+    return ResponseWrapper.success(res, tickets, messages.model.retrieved('Ticket Summary'));
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};
+
+// Delete Tickets by Event and/or Ticket Type
+export const deleteTicketsByEventAndType = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { eventId, ticketTypeCode } = req.query;
+    const result = await ticketService.deleteTicketsByEventAndType(eventId as string, ticketTypeCode as string);
+    return ResponseWrapper.success(res, result, messages.model.deleted(result + ' ticket(s)'));
+  } catch (error) {
+    return ResponseWrapper.error(res, error);
+  }
+};

@@ -282,5 +282,15 @@ class TicketService {
     const soldTicketCount = await ticketRepository.getSoldTicketCount(eventId);
     return { ticketCount, soldTicketCount };
   };
+  // Get Ticket Statistics By TicketTypeCode and Event
+  getTicketSummary = async () => {
+    const tickets = await ticketRepository.getTicketCountsByTicketCodeAndEvent();
+    return tickets;
+  };
+  // Delete Tickets by Event and/or TicketTypeCode
+  deleteTicketsByEventAndType = async (eventId: string, ticketTypeCode: string) => {
+    const result = await ticketRepository.deleteTicketsByEventAndType(eventId, ticketTypeCode);
+    return result;
+  };
 }
 export const ticketService = new TicketService();

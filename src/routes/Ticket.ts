@@ -1,12 +1,14 @@
 import {
   createTicket,
   deleteTicket,
+  deleteTicketsByEventAndType,
   generateBulkTickets,
   getAllTickets,
   getTicketById,
   getTicketByQR,
   getTicketStatsByDate,
   getTicketStatsByEvent,
+  getTicketSummary,
   updateDoorSaleTickets,
   updateTicket,
   uploadAndProcessExcel,
@@ -60,9 +62,11 @@ router.post('/', authorize(['admin', 'event_manager']), validator.body(validator
 router.post('/bulk', authorize(['admin', 'event_manager']), validator.body(validators.generateBulkTickets), generateBulkTickets);
 router.post('/stats-by-date', authorize(['admin', 'event_manager']), validator.body(validators.ticketStatsByDate), getTicketStatsByDate);
 router.post('/stats-by-event', authorize(['admin', 'event_manager']), validator.body(validators.ticketStatsByEvent), getTicketStatsByEvent);
+router.get('/summary', authorize(['admin', 'event_manager']), getTicketSummary);
 router.get('/', getAllTickets);
 router.get('/:id', getTicketById);
 router.put('/:id', validator.body(validators.updateTicket), updateTicket);
+router.delete('/delete-by-params', authorize(['admin', 'event_manager']), validator.query(validators.deleteTicketsByParam), deleteTicketsByEventAndType);
 router.delete('/:id', deleteTicket);
 
 export default router;
