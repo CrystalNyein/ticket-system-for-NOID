@@ -85,6 +85,7 @@ class TicketRepository {
       attributes: [
         'eventId',
         [col('event.name'), 'eventName'],
+        [col('event.end_date'), 'eventEndDate'],
         'ticketTypeCode',
         [fn('COUNT', col('Ticket.id')), 'Total Tickets'],
         [fn('COUNT', literal("CASE WHEN Ticket.status='sold' THEN 1 END")), 'Sold Tickets'],
