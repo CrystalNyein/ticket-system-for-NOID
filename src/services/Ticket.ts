@@ -15,6 +15,9 @@ import { TTicketSaleRows } from '../common/types';
 import dayjs from 'dayjs';
 import { ticketScanRepository } from '../repositories/TicketScan';
 import { buyerRepository } from '../repositories/Buyer';
+import path from 'path';
+import os from 'os';
+import { deleteFolderRecursive } from '../utils/deleteFolder';
 
 class TicketService {
   // Method to generate a single ticket (prepare ticket data)
@@ -289,7 +292,26 @@ class TicketService {
   };
   // Delete Tickets by Event and/or TicketTypeCode
   deleteTicketsByEventAndType = async (eventId: string, ticketTypeCode: string) => {
+    // Find the event to get the event name
+    const event = await eventRepository.findById(eventId);
+    if (!event) {
+      throw new NotFoundError(messages.model.notFound('Event'));
+    }
+
+    // Construct folder path
+    const folderPath = path
+      .join(
+        os.homedir(),
+        'Desktop',
+        'QR Codes',
+        event.name,
+        ticketTypeCode === 'ALL' ? '' : ticketTypeCode, // Exclude ticketTypeCode if 'ALL'
+      )
+      .replace(/[/\\]$/, ''); // Remove trailing slash if exists
+
     const result = await ticketRepository.deleteTicketsByEventAndType(eventId, ticketTypeCode);
+    // Remove the folder
+    deleteFolderRecursive(folderPath);
     return result;
   };
 }

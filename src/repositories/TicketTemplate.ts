@@ -24,7 +24,9 @@ class TicketTemplateRepository {
     return await TicketTemplateModel.update(updatedData, { where: { id } });
   }
   async delete(id: string) {
-    return await TicketTemplateModel.destroy({ where: { id } });
+    const template = await this.findById(id);
+    if (!template) throw new Error('Template not found');
+    return await template.destroy();
   }
   async checkTemplate(eventId: string, ticketTypeCode: string) {
     return await TicketTemplateModel.findOne({ where: { eventId, ticketTypeCode } });

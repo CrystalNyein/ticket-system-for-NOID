@@ -1,6 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
 import { TicketTemplateAttributes, TicketTemplateCreateAttributes } from '../interfaces/TicketTemplate';
 import sequelize from '../common/sequelize';
+import path from 'path';
+import fs from 'fs';
 
 class TicketTemplateModel extends Model<TicketTemplateAttributes, TicketTemplateCreateAttributes> {
   declare id: string;
@@ -80,4 +82,17 @@ TicketTemplateModel.init(
 //   foreignKey: 'event_id',
 //   as: 'tickets',
 // });
+
+// Hook to delete file before template is removed from DB
+TicketTemplateModel.beforeDestroy(async (ticketTemplate) => {
+  try {
+    const filePath = path.join(__dirname, '../../', ticketTemplate.path);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath); // Delete the file
+      console.log(`Deleted template: ${filePath}`);
+    }
+  } catch (error) {
+    console.error('Error deleting template file:', error);
+  }
+});
 export default TicketTemplateModel;

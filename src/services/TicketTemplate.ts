@@ -20,9 +20,6 @@ class TicketTemplateService {
 
     // Fetch ticketTemplates with generated filters
     const ticketTemplates = await ticketTemplateRepository.findAll(filters);
-    if (!ticketTemplates || ticketTemplates.length === 0) {
-      throw new NotFoundError(messages.model.notFound('Ticket Types'));
-    }
     return ticketTemplates;
   }
 

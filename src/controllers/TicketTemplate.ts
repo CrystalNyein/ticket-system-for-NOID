@@ -22,7 +22,7 @@ export const createTicketTemplate = async (req: Request, res: Response): Promise
       eventId,
       ticketTypeCode,
       filename: file.fieldname,
-      path: path.resolve(__dirname, '../../', file.path),
+      path: file.path,
     };
 
     const ticketTemplate = await ticketTemplateService.createTicketTemplate(ticketTemplateData);
