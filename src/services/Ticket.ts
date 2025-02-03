@@ -107,7 +107,7 @@ class TicketService {
 
       const currentDate = dayjs();
       const eventStartDate = dayjs(event.startDate);
-      const eventEndDate = dayjs(event.endDate);
+      const eventEndDate = dayjs(event.endDate).endOf('day');
 
       if (currentDate.isBefore(eventStartDate) || currentDate.isAfter(eventEndDate)) {
         throw new Error(messages.ticket.error.eventNotActive);
