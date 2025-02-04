@@ -52,6 +52,15 @@ class TicketRepository {
       },
     });
   }
+  async getLatestTicket(eventId: string, ticketTypeCode: string) {
+    return await TicketModel.findOne({
+      where: {
+        eventId,
+        ticketTypeCode,
+      },
+      order: [['ticketCode', 'DESC']],
+    });
+  }
   async getTicketCount(eventId?: string) {
     const whereClause = eventId ? { eventId } : {};
     return await TicketModel.count({

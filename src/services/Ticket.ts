@@ -21,7 +21,7 @@ import { deleteFolderRecursive } from '../utils/deleteFolder';
 
 class TicketService {
   // Method to generate a single ticket (prepare ticket data)
-  async generateTicket(eventId: string, ticketTypeCode: string, ticketTemplatePath: string): Promise<TicketCreateAttributes> {
+  async generateTicket(eventId: string, ticketTypeCode: string, ticketTemplatePath: string, ticket?: string): Promise<TicketCreateAttributes> {
     try {
       // Find the event by its ID
       const event = await eventRepository.findById(eventId);
@@ -29,8 +29,9 @@ class TicketService {
         throw new NotFoundError(messages.model.notFound('Event'));
       }
 
-      // Generate unique ticket code
-      const ticketCode = await this.generateUniqueTicketCode(eventId, ticketTypeCode); // Generate unique ticket code
+      // Generate unique ticket code if ticketCode is given, do not generate ticketcode
+      // const ticketCode = await this.generateUniqueTicketCode(eventId, ticketTypeCode); // This function is kept for random ticket codes
+      const ticketCode = ticket ? ticket : await this.generateUniqueTicketCode(eventId, ticketTypeCode);
 
       // Create the ticket data for this ticket
       const newTicket: TicketCreateAttributes = {
@@ -171,19 +172,28 @@ class TicketService {
     try {
       const ticketTemplatePath = await ticketTemplateService.getTicketTemplateById(ticketTemplate);
 
+      // Find the highest existing ticket number for this event and ticket type
+      const latestTicket = await ticketRepository.getLatestTicket(eventId, ticketTypeCode);
+
+      // Determine the starting number
+      let startNumber = latestTicket ? parseInt(latestTicket.ticketCode, 10) + 1 : 1;
+
       // Prepare an array to collect errors for failed tickets
       const failedTickets: any[] = [];
       // Prepare an array to hold the ticket data
       const createdTickets: TicketModel[] = [];
       for (let i = 0; i < totalCount; i++) {
         try {
-          const ticket = await this.generateTicket(eventId, ticketTypeCode, ticketTemplatePath.path);
+          const ticketCode = startNumber.toString().padStart(5, '0');
+          // const ticket = await this.generateTicket(eventId, ticketTypeCode, ticketTemplatePath.path); // Generating random ticket codes
+          const ticket = await this.generateTicket(eventId, ticketTypeCode, ticketTemplatePath.path, ticketCode);
           const createdTicket = await this.createTicket(ticket);
           createdTickets.push(createdTicket);
+          startNumber++; // Increment for next ticket
         } catch (error) {
           // Log the error and continue with the next ticket
-          failedTickets.push({ index: i, error });
-          console.error(`Error creating ticket ${i}:`, (error as Error).message);
+          failedTickets.push({ index: startNumber.toString().padStart(5, '0'), error });
+          console.error(`Error creating ticket ${startNumber}:`, (error as Error).message);
         }
       }
       return { createdTickets, failedTickets };
