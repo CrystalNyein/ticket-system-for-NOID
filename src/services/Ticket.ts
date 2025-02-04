@@ -11,7 +11,7 @@ import { buyerSerivce } from './Buyer';
 import { ticketTemplateService } from './TicketTemplate';
 import xlsx from 'xlsx';
 import fs from 'fs';
-import { TTicketSaleRows } from '../common/types';
+import { TTicketSaleRandomRows, TTicketSaleSequenceRows } from '../common/types';
 import dayjs from 'dayjs';
 import { ticketScanRepository } from '../repositories/TicketScan';
 import { buyerRepository } from '../repositories/Buyer';
@@ -167,8 +167,34 @@ class TicketService {
     return { id };
   }
 
-  // Method to generate and save bulk tickets
+  // Method to generate and save bulk tickets by Random
   async generateBulkTickets(eventId: string, ticketTypeCode: string, totalCount: number, ticketTemplate: string) {
+    try {
+      const ticketTemplatePath = await ticketTemplateService.getTicketTemplateById(ticketTemplate);
+
+      // Prepare an array to collect errors for failed tickets
+      const failedTickets: any[] = [];
+      // Prepare an array to hold the ticket data
+      const createdTickets: TicketModel[] = [];
+      for (let i = 0; i < totalCount; i++) {
+        try {
+          const ticket = await this.generateTicket(eventId, ticketTypeCode, ticketTemplatePath.path);
+          const createdTicket = await this.createTicket(ticket);
+          createdTickets.push(createdTicket);
+        } catch (error) {
+          // Log the error and continue with the next ticket
+          failedTickets.push({ index: i, error });
+          console.error(`Error creating ticket ${i}:`, (error as Error).message);
+        }
+      }
+      return { createdTickets, failedTickets };
+    } catch (error) {
+      throw new Error(messages.ticket.error.generateBulkTickets((error as Error).message));
+    }
+  }
+
+  // Method to generate and save bulk tickets // For Sequence numbers
+  async generateBulkTicketsBySequence(eventId: string, ticketTypeCode: string, totalCount: number, ticketTemplate: string) {
     try {
       const ticketTemplatePath = await ticketTemplateService.getTicketTemplateById(ticketTemplate);
 
@@ -227,7 +253,7 @@ class TicketService {
     const sheet = workbook.Sheets[sheetName];
 
     // Convert the sheet to JSON
-    const data: TTicketSaleRows[] = xlsx.utils.sheet_to_json(sheet);
+    const data: TTicketSaleRandomRows[] = xlsx.utils.sheet_to_json(sheet);
 
     const updatedTickets: TicketModel[] = [];
     const failedTickets: any[] = [];
@@ -236,9 +262,9 @@ class TicketService {
       const buyerName = row['Buyer Name'];
       const buyerPhone = row['Buyer Phone'];
       const buyerEmail = row['Buyer Email'];
-      const ticketCode = row['Ticket Code'];
+      const ticketCode = row['Ticket Code']; // For random numbers
 
-      const tickets = await this.updateTicketSales(eventId, ticketCode, buyerName, buyerPhone, buyerEmail);
+      const tickets = await this.updateTicketSales(eventId, ticketCode, buyerName, buyerPhone, buyerEmail); // For random numbers
 
       updatedTickets.push(...tickets.updatedTickets);
       failedTickets.push(...tickets.failedTickets);
@@ -248,7 +274,44 @@ class TicketService {
     return { updatedTickets, failedTickets };
   };
 
-  // Door Sale Tickets
+  // Process Excel File // For sequence ticket numbers
+  processExcelFileBySequence = async (filePath: string, eventId: string) => {
+    // Find the event by its ID
+    const event = await eventRepository.findById(eventId);
+    if (!event) {
+      throw new NotFoundError(messages.model.notFound('Event'));
+    }
+
+    // Load the Excel file
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0]; // Get the first sheet
+    const sheet = workbook.Sheets[sheetName];
+
+    // Convert the sheet to JSON
+    const data: TTicketSaleSequenceRows[] = xlsx.utils.sheet_to_json(sheet);
+
+    const updatedTickets: TicketModel[] = [];
+    const failedTickets: any[] = [];
+    // Process each row
+    for (const row of data) {
+      const buyerName = row['Buyer Name'];
+      const buyerPhone = row['Buyer Phone'];
+      const buyerEmail = row['Buyer Email'];
+      const ticketTypeCode = row['Ticket Type'];
+      const ticketFrom = parseInt(row['Ticket From'], 10);
+      const ticketTo = parseInt(row['Ticket To'], 10);
+
+      const tickets = await this.updateTicketSalesBySequence(eventId, ticketTypeCode, ticketFrom, ticketTo, buyerName, buyerPhone, buyerEmail);
+
+      updatedTickets.push(...tickets.updatedTickets);
+      failedTickets.push(...tickets.failedTickets);
+    }
+    // Delete the file after processing
+    fs.unlinkSync(filePath);
+    return { updatedTickets, failedTickets };
+  };
+
+  // Door Sale Tickets // For random ticket numbers
   updateTicketSales = async (eventId: string, ticketCode: string, buyerName: string, buyerPhone: string, buyerEmail: string) => {
     // Find the event by its ID
     const event = await eventRepository.findById(eventId);
@@ -267,6 +330,47 @@ class TicketService {
     for (const code of ticketCodes) {
       const ticketTypeCode = code.trim().slice(0, -5); // Extract everything except the last 5 characters
       const ticketCode = code.trim().slice(-5); // Extract the last 5 characters
+
+      // Update ticket status and assign buyer
+      const ticket = await this.getTicketByUniqueConstraint(eventId, ticketTypeCode, ticketCode);
+      if (!ticket) {
+        failedTickets.push(ticketCode);
+      } else {
+        const updatedTicket = await this.updateTicket(ticket.id, {
+          status: 'sold',
+          buyerId: buyer.id,
+        });
+        updatedTickets.push(updatedTicket);
+      }
+    }
+    return { updatedTickets, failedTickets };
+  };
+
+  // Door sale tickets // For sequence ticket numbers
+  updateTicketSalesBySequence = async (
+    eventId: string,
+    ticketTypeCode: string,
+    ticketFrom: number,
+    ticketTo: number,
+    buyerName: string,
+    buyerPhone: string,
+    buyerEmail: string,
+  ) => {
+    // Find the event by its ID
+    const event = await eventRepository.findById(eventId);
+    if (!event) {
+      throw new NotFoundError(messages.model.notFound('Event'));
+    }
+    const updatedTickets: TicketModel[] = [];
+    // Prepare an array to collect errors for failed tickets
+    const failedTickets: any[] = [];
+
+    // Check or create buyer
+    const buyer = await buyerSerivce.findOrCreateBuyer(buyerName, buyerPhone, buyerEmail);
+
+    // Loop ticketFrom to ticketTo to update each ticket status
+    for (let code = ticketFrom; code <= ticketTo; code++) {
+      const ticketCode = code.toString().padStart(5, '0'); // Adding zeros in front
 
       // Update ticket status and assign buyer
       const ticket = await this.getTicketByUniqueConstraint(eventId, ticketTypeCode, ticketCode);

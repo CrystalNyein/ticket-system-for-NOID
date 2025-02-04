@@ -9,6 +9,7 @@ class EventModel extends Model<EventAttributes, EventCreateAttributes> {
   declare description: string | null;
   declare startDate: Date;
   declare endDate: Date;
+  declare isRandom: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
   static filterableColumns = ['startDate', 'endDate'];
@@ -38,6 +39,11 @@ EventModel.init(
       type: DataTypes.DATEONLY,
       allowNull: false,
       field: 'end_date',
+    },
+    isRandom: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     createdAt: {
       type: DataTypes.DATE,

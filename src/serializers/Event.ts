@@ -8,6 +8,7 @@ class EventSerializer {
       description: event.description,
       startDate: event.startDate,
       endDate: event.endDate,
+      isRandom: event.isRandom,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     };

@@ -6,6 +6,7 @@ export interface EventAttributes {
   description: string | null;
   startDate: Date;
   endDate: Date;
+  isRandom: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

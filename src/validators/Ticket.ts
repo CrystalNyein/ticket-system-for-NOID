@@ -34,7 +34,11 @@ export default {
   }),
   doorSales: Joi.object({
     eventId: Joi.string().required(),
-    ticketCode: Joi.string().required(),
+    isRandom: Joi.boolean().required(),
+    ticketCode: Joi.when('isRandom', { is: true, then: Joi.string().required(), otherwise: Joi.string().optional() }),
+    ticketTypeCode: Joi.when('isRandom', { is: false, then: Joi.string().required(), otherwise: Joi.string().optional() }),
+    ticketFrom: Joi.when('isRandom', { is: false, then: Joi.number().required(), otherwise: Joi.number().optional() }),
+    ticketTo: Joi.when('isRandom', { is: false, then: Joi.number().required(), otherwise: Joi.number().optional() }),
     buyerName: Joi.string().required(),
     buyerPhone: Joi.string().required(),
     buyerEmail: Joi.string().allow('').optional(),

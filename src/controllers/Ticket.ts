@@ -3,6 +3,8 @@ import { ticketRepository } from '../repositories/Ticket';
 import { ticketService } from '../services/Ticket';
 import ResponseWrapper from '../utils/ResponseWrapper';
 import messages from '../common/messages';
+import { eventRepository } from '../repositories/Event';
+import NotFoundError from '../common/errors/types/NotFoundError';
 
 // Create a new ticket (generate and save it)
 export const createTicket = async (req: Request, res: Response): Promise<any> => {
@@ -63,9 +65,20 @@ export const deleteTicket = async (req: Request, res: Response): Promise<any> =>
 export const generateBulkTickets = async (req: Request, res: Response): Promise<any> => {
   try {
     const { eventId, ticketTypeCode, totalCount, ticketTemplate } = req.body;
-    // Call the service to generate bulk tickets
-    const { createdTickets, failedTickets } = await ticketService.generateBulkTickets(eventId, ticketTypeCode, totalCount, ticketTemplate);
+    // Fetch event details to check isRandom
+    const event = await eventRepository.findById(eventId);
+    if (!event) {
+      throw new NotFoundError(messages.model.notFound('Event'));
+    }
 
+    let createdTickets, failedTickets;
+    if (event.isRandom) {
+      // Call the service to generate bulk tickets
+      ({ createdTickets, failedTickets } = await ticketService.generateBulkTickets(eventId, ticketTypeCode, totalCount, ticketTemplate));
+    } else {
+      // Call the service to generate bulk tickets
+      ({ createdTickets, failedTickets } = await ticketService.generateBulkTicketsBySequence(eventId, ticketTypeCode, totalCount, ticketTemplate));
+    }
     return ResponseWrapper.success(
       res,
       { createdTickets, failedTickets },
@@ -87,7 +100,17 @@ export const uploadAndProcessExcel = async (req: Request, res: Response): Promis
     if (!eventId) {
       return ResponseWrapper.error(res, messages.error.missingMetadata, 400);
     }
-    const { updatedTickets, failedTickets } = await ticketService.processExcelFile(file.path, eventId);
+    // Fetch event details to check isRandom
+    const event = await eventRepository.findById(eventId);
+    if (!event) {
+      throw new NotFoundError(messages.model.notFound('Event'));
+    }
+    let updatedTickets, failedTickets;
+    if (event.isRandom) {
+      ({ updatedTickets, failedTickets } = await ticketService.processExcelFile(file.path, eventId));
+    } else {
+      ({ updatedTickets, failedTickets } = await ticketService.processExcelFileBySequence(file.path, eventId));
+    }
     return ResponseWrapper.success(
       res,
       { updatedTickets, failedTickets },
@@ -101,8 +124,20 @@ export const uploadAndProcessExcel = async (req: Request, res: Response): Promis
 
 export const updateDoorSaleTickets = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { eventId, ticketCode, buyerName, buyerPhone, buyerEmail } = req.body;
-    const { updatedTickets, failedTickets } = await ticketService.updateTicketSales(eventId, ticketCode, buyerName, buyerPhone, buyerEmail);
+    const { eventId, buyerName, buyerPhone, buyerEmail } = req.body;
+    // Fetch event details to check isRandom
+    const event = await eventRepository.findById(eventId);
+    if (!event) {
+      throw new NotFoundError(messages.model.notFound('Event'));
+    }
+    let updatedTickets, failedTickets;
+    if (event.isRandom) {
+      const { ticketCode } = req.body;
+      ({ updatedTickets, failedTickets } = await ticketService.updateTicketSales(eventId, ticketCode, buyerName, buyerPhone, buyerEmail));
+    } else {
+      const { ticketTypeCode, ticketFrom, ticketTo } = req.body;
+      ({ updatedTickets, failedTickets } = await ticketService.updateTicketSalesBySequence(eventId, ticketTypeCode, ticketFrom, ticketTo, buyerName, buyerPhone, buyerEmail));
+    }
     return ResponseWrapper.success(
       res,
       { updatedTickets, failedTickets },
